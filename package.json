@@ -1,0 +1,25 @@
+{
+  "name": "uncommon-assets-app",
+  "version": "1.0.0",
+  "main": "web/index.js",
+  "license": "UNLICENSED",
+  "scripts": {
+    "shopify": "shopify",
+    "build": "shopify app build",
+    "dev": "shopify app dev",
+    "info": "shopify app info",
+    "generate": "shopify app generate",
+    "deploy": "shopify app deploy"
+  },
+  "dependencies": {
+    "@shopify/app": "3.45.4",
+    "@shopify/cli": "3.45.4",
+    "@shopify/shopify-app-session-storage-mongodb": "^1.0.8",
+    "body-parser": "^1.20.2",
+    "connect-mongo": "^5.0.0",
+    "dotenv": "^16.0.3",
+    "express-session": "^1.17.3",
+    "mongoose": "^7.1.1"
+  },
+  "author": "Mikey"
+}
