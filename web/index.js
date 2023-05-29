@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import mongoose from "mongoose";
-import MongoStore from "connect-mongo";
+// import MongoStore from "connect-mongo";
 import bodyParser from "body-parser";
 
 import shopify from "./shopify.js";
