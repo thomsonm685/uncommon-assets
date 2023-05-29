@@ -1,5 +1,7 @@
 type="frontend"
 
 [commands]
-dev = "npm run dev"
+dev = "npm run dev -- --host"
 build = "npm run build"
+
+
