@@ -30,6 +30,8 @@ import mongoose from 'mongoose';
             }
         }
         `
+
+        // TEST ADDED
         // send gql query to Shopify
         const queryRes = await client.query({
             data:{
