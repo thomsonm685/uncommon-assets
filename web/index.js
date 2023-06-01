@@ -73,7 +73,7 @@ app.get("/api/products/create", async (_req, res) => {
   } catch (e) {
     console.log(`Failed to process products/create: ${e.message}`);
     status = 500;
-    error = e.message;
+    error = e.message; 
   }
   res.status(status).send({ success: status === 200, error });
 });
@@ -81,7 +81,7 @@ app.get("/api/products/create", async (_req, res) => {
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
 
-createSubscription();
+attachSellingPlan();
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res

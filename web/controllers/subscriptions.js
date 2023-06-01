@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 // export const createSellingPlan = async ({session, options}) => {
 export const createSellingPlan = async () => {
 
-  const session = {accessToken:'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', shop:'michael-t-dev.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in createSellingPlan');
@@ -71,7 +71,7 @@ export const createSellingPlan = async () => {
   catch(error){
     console.log('APP[ERROR] creating selling plan:', error.response.errors);
   }
-}
+} 
 
 // delete a selling plan in shopify
 export const deleteSellingPlan = async () => {
@@ -81,9 +81,9 @@ export const deleteSellingPlan = async () => {
 export const attachSellingPlan = async () => {
   
   // TEST DATA
-  const session = {accessToken:'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', shop:'michael-t-dev.myshopify.com'};
-  const planId = 'gid://shopify/SellingPlanGroup/338067641';
-  const productIds = ["gid://shopify/Product/6729055240377"];
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const planId = 'gid://shopify/SellingPlanGroup/1557102899';
+  const productIds = ["gid://shopify/Product/8313364939059"];
 
   try{
     console.log('APP[INFO] in createSellingPlan');
@@ -125,9 +125,9 @@ export const attachSellingPlan = async () => {
 // remove selling plan from a product in shopify
 export const detachSellingPlan = async () => {
   // TEST DATA
-  const session = {accessToken:'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', shop:'michael-t-dev.myshopify.com'};
-  const planId = 'gid://shopify/SellingPlanGroup/338067641';
-  const productIds = ["gid://shopify/Product/6729055240377"];
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const planId = 'gid://shopify/SellingPlanGroup/1557102899';
+  const productIds = ["gid://shopify/Product/8313364939059"];
 
   try{
     console.log('APP[INFO] in createSellingPlan');
@@ -166,8 +166,8 @@ export const detachSellingPlan = async () => {
 
 // create subscription with customer ID and product with selling plan
 export const createSubscription = async () => {
-   const session = {accessToken:'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', shop:'michael-t-dev.myshopify.com'};
-   const customerId = "gid://shopify/Customer/6425378685113";
+   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+   const customerId = "gid://shopify/Customer/6984955593011";
  
    try{
      console.log('APP[INFO] in createSubScription');
@@ -198,6 +198,9 @@ export const createSubscription = async () => {
     //  const paymentMethod = 
  
      console.log("APP[SUCCESS] getting customer payment method:", customerRes.body.data.customer.paymentMethods.edges);
+   
+    //  subscriptionContractAtomicCreate IS WHAT WE NEED HERE
+   
    }
    catch(error){
      console.log('APP[ERROR] removing product to selling plan:', error.response.errors);
