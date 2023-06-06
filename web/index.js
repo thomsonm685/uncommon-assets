@@ -15,7 +15,7 @@ import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 import shopInDb from "./helpers/shopInDb.js";
-import { attachSellingPlan, createSellingPlan, createSubscription, detachSellingPlan } from "./controllers/subscriptions.js";
+import { attachSellingPlan, cancelSubscription, createSellingPlan, createSubscription, detachSellingPlan, listCustomerSubscriptions } from "./controllers/subscriptions.js";
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -81,7 +81,7 @@ app.get("/api/products/create", async (_req, res) => {
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
 
-attachSellingPlan();
+cancelSubscription();
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res

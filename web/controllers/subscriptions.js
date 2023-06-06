@@ -82,7 +82,7 @@ export const attachSellingPlan = async () => {
   
   // TEST DATA
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
-  const planId = 'gid://shopify/SellingPlanGroup/1557102899';
+  const planId = 'gid://shopify/SellingPlanGroup/1582268723';
   const productIds = ["gid://shopify/Product/8313364939059"];
 
   try{
@@ -126,7 +126,7 @@ export const attachSellingPlan = async () => {
 export const detachSellingPlan = async () => {
   // TEST DATA
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
-  const planId = 'gid://shopify/SellingPlanGroup/1557102899';
+  const planId = 'gid://shopify/SellingPlanGroup/1582268723';
   const productIds = ["gid://shopify/Product/8313364939059"];
 
   try{
@@ -168,13 +168,14 @@ export const detachSellingPlan = async () => {
 export const createSubscription = async () => {
    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
    const customerId = "gid://shopify/Customer/6984955593011";
+   const variantId = "gid://shopify/ProductVariant/45262107279667"
  
    try{
      console.log('APP[INFO] in createSubScription');
      // create client with session
      const client = new shopify.api.clients.Graphql({session});
      // build query
-     const gqlQuery = `
+     let gqlQuery = `
      {
       customer(id:"${customerId}") {
         id
@@ -195,9 +196,44 @@ export const createSubscription = async () => {
        }
      });
 
-    //  const paymentMethod = 
+     const paymentMethod = customerRes.body.data.customer.paymentMethods.edges[0].node.id;
  
      console.log("APP[SUCCESS] getting customer payment method:", customerRes.body.data.customer.paymentMethods.edges);
+
+    gqlQuery = `
+    mutation($customerId: ID!, $paymentMethodId: ID!, $variantId: ID!) {
+      subscriptionContractAtomicCreate(input: {customerId: $customerId, nextBillingDate: "2024-06-02", currencyCode: USD, lines: [{line: {productVariantId: $variantId, quantity: 1, currentPrice: 2.0}}], contract: {status: ACTIVE, paymentMethodId: $paymentMethodId, billingPolicy: {interval: MONTH, intervalCount: 1, minCycles: 1}, deliveryPolicy: {interval: MONTH, intervalCount: 1}, deliveryPrice: 1.00, deliveryMethod: {shipping: {address: {firstName: "Michael", lastName: "Thomson", address1: "1118 Loma Mesa", city: "San Antonio", province: "Texas", country: "United States", zip: "78214"}}}}}) {
+        contract {
+          id
+          lines(first: 10) {
+            nodes {
+              id
+              quantity
+            }
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+     `
+     // send gql query to Shopify
+     const createSubscriptionRes = await client.query({
+       data:{
+           "query":gqlQuery,
+           "variables":
+           {
+            "customerId": customerId,
+            "paymentMethodId": paymentMethod,
+            "variantId": variantId
+          }
+       }
+     });
+
+     console.log("APP[SUCCESS] creating subscription for customer:", createSubscriptionRes.body.data);
+
    
     //  subscriptionContractAtomicCreate IS WHAT WE NEED HERE
    
@@ -208,7 +244,163 @@ export const createSubscription = async () => {
 
 }
 // delete subscription with subscription ID
-export const deleteSubscription = async () => {
+export const cancelSubscription = async () => {
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+
+  try{
+    const client = new shopify.api.clients.Graphql({session});
+
+    console.log('APP[INFO] in cancelSubscription');
+
+    const contractId = 'gid://shopify/SubscriptionContract/10992681267';
+    let draftContractId = null;
+  
+
+    // gid://shopify/SubscriptionContract/10992484659
+
+    // create draft
+    let gqlQuery = `
+    mutation subscriptionContractUpdate($contractId: ID!) {
+      subscriptionContractUpdate(contractId: $contractId) {
+        draft {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+       `
+       // send gql query to Shopify
+      const createSubDraftRes = await client.query({
+        data:{
+            "query":gqlQuery,
+            "variables":
+            {
+              "contractId": contractId
+            }
+        }
+      });
+  
+      console.log("APP[SUCCESS] creating subscription draft:", createSubDraftRes.body.data);
+  
+      draftContractId = createSubDraftRes.body.data.subscriptionContractUpdate.draft.id;
+  
+    // update draft
+  
+    gqlQuery = `
+    mutation subscriptionDraftUpdate($draftId: ID!, $input: SubscriptionDraftInput!) {
+      subscriptionDraftUpdate(draftId: $draftId, input: $input) {
+        draft {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+       `
+       // send gql query to Shopify
+      const updateSubDraftRes = await client.query({
+        data:{
+            "query":gqlQuery,
+            "variables":
+            {
+              "draftId": draftContractId,
+              "input": {
+                "status": "CANCELLED"
+              }
+            }
+            
+        }
+      });
+  
+      console.log("APP[SUCCESS] updating subscription draft status to cancelled:", updateSubDraftRes.body.data);
+  
+    // commit draft
+
+    gqlQuery = `
+    mutation subscriptionDraftCommit($draftId: ID!) {
+      subscriptionDraftCommit(draftId: $draftId) {
+        contract {
+            id
+            status
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    
+       `
+       // send gql query to Shopify
+      const commitDraftUpdate = await client.query({
+        data:{
+            "query":gqlQuery,
+            "variables":
+            {
+              "draftId": draftContractId
+            }
+        }
+      });
+  
+      console.log("APP[SUCCESS] committing subscription draft:", commitDraftUpdate.body.data);
+  }
+  catch(e){
+    console.log('APP[ERROR] in cancelSubscription:', e);
+
+  }
+
+}
+
+
+export const listCustomerSubscriptions = async () => {
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+
+  try{
+    const client = new shopify.api.clients.Graphql({session});
+
+    console.log('APP[INFO] in listCustomerSubscriptions');
+
+    const customerId = "gid://shopify/Customer/6984955593011";
+  
+    let gqlQuery = `
+    {
+      customer(id: ${customerId}) {
+        id
+        firstName
+        lastName
+        subscriptionContracts(first:50){
+            edges {
+                node { 
+                    id
+                    status
+                }
+            }
+        }
+      }
+       `
+       // send gql query to Shopify
+      const listCustomerSubsRes = await client.query({
+        data:{
+            "query":gqlQuery
+        },
+        "variables":
+        {
+        }
+      });
+  
+      console.log("APP[SUCCESS] listing customer subscriptions:", listCustomerSubsRes.body.data.customer.subscriptionContracts.edges);
+  
+ 
+  }
+  catch(e){
+    console.log('APP[ERROR] in listCustomerSubscriptions:', e);
+
+  }
 
 }
 
