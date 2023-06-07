@@ -232,6 +232,8 @@ export const createSubscription = async () => {
        }
      });
 
+    await manageCustomerTag();
+
      console.log("APP[SUCCESS] creating subscription for customer:", createSubscriptionRes.body.data);
 
    
@@ -243,6 +245,7 @@ export const createSubscription = async () => {
    }
 
 }
+
 // delete subscription with subscription ID
 export const cancelSubscription = async () => {
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
@@ -346,6 +349,8 @@ export const cancelSubscription = async () => {
             }
         }
       });
+
+      await manageCustomerTag();
   
       console.log("APP[SUCCESS] committing subscription draft:", commitDraftUpdate.body.data);
   }
@@ -374,27 +379,38 @@ export const listCustomerSubscriptions = async () => {
         firstName
         lastName
         subscriptionContracts(first:50){
-            edges {
-                node { 
-                    id
-                    status
-                }
+          edges {
+            node { 
+                id
+                status
             }
-        }
+          }
+        }   
       }
-       `
-       // send gql query to Shopify
-      const listCustomerSubsRes = await client.query({
-        data:{
-            "query":gqlQuery
-        },
-        "variables":
-        {
+    }
+      `
+      // send gql query to Shopify
+    const listCustomerSubsRes = await client.query({
+      data: `query  {
+        customer(id: "${customerId}") {
+          id
+          firstName
+          lastName
+          subscriptionContracts(first:50){
+            edges {
+              node { 
+                  id
+                  status
+              }
+            }
+          }   
         }
-      });
+      }`
+    });
+
+    console.log("APP[SUCCESS] listing customer subscriptions:", listCustomerSubsRes.body.data.customer.subscriptionContracts.edges);
   
-      console.log("APP[SUCCESS] listing customer subscriptions:", listCustomerSubsRes.body.data.customer.subscriptionContracts.edges);
-  
+    return listCustomerSubsRes.body.data.customer.subscriptionContracts.edges;
  
   }
   catch(e){
@@ -402,5 +418,78 @@ export const listCustomerSubscriptions = async () => {
 
   }
 
+}
+
+export const manageCustomerTag = async () => {
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+
+  try{
+    const client = new shopify.api.clients.Graphql({session});
+
+    console.log('APP[INFO] in manageCustomerTag');
+
+    const customerId = "gid://shopify/Customer/6984955593011";
+
+    const customerSubscriptions = await listCustomerSubscriptions();
+
+    console.log("customerSubscriptions:", customerSubscriptions);
+
+    // HERE, WE SHOULD HAVE A SWITCH STATMENT FOR GOLD SILVER AND BRONZE, ASSIGNING EACH RANK
+
+    let isSubscriber = false;
+    let gqlQuery
+    customerSubscriptions.forEach(sub=>sub.node.status==="ACTIVE"?isSubscriber = true : '');
+    console.log("isSubscriber:", isSubscriber);
+
+    if(isSubscriber){
+      gqlQuery = `
+      mutation tagsAdd($id: ID!, $tags: [String!]!) {
+        tagsAdd(id: $id, tags: $tags) {
+          node {
+            id
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }`
+    }
+    else{
+      gqlQuery = `
+      mutation tagsRemove($id: ID!, $tags: [String!]!) {
+        tagsRemove(id: $id, tags: $tags) {
+          node {
+            id
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }`
+    }
+
+
+    const manageCustomerTagRes = await client.query({
+      data:{
+        "query":gqlQuery,
+        "variables":
+        {
+          "id": customerId,
+          "tags": ["ACTIVE_SUBSCRIBER"]
+        }
+      },
+
+    });
+
+    console.log("APP[SUCCESS] in manageCustomerTag:", manageCustomerTagRes.body.data);
+  
+ 
+  }
+  catch(e){
+    console.log('APP[ERROR] in manageCustomerTag:', e);
+
+  }
 }
 
