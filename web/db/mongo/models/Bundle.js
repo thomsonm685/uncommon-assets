@@ -7,7 +7,7 @@ const BundleSchema = new Schema({
         type: String,
         required: true
     },
-    connectedProductId: {
+    connectedProductVariant: {
         type: String,
         required: true
     },
