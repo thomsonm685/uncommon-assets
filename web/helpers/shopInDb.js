@@ -15,6 +15,10 @@ const shopInDb = async (req, res, next) => {
             const newUser = await new User({shop,accessToken});
             await newUser.save();
         }
+        else{
+            foundUser.accessToken = accessToken;
+            await foundUser.save();
+        }
 
         console.log('APP[SUCCESS] In shopInDB()');
         return next();

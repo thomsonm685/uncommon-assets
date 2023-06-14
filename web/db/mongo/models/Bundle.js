@@ -7,7 +7,11 @@ const BundleSchema = new Schema({
         type: String,
         required: true
     },
-    connectedProductVariant: {
+    masterVariantId: {
+        type: String,
+        required: true
+    },
+    masterInventoryId: {
         type: String,
         required: true
     },
@@ -15,6 +19,10 @@ const BundleSchema = new Schema({
         type: Array,
         required: true,
         default: []
+        // {
+        //     variantId: 543206541,
+        //     quantity: 1
+        // }
     },
     aggregateInventory: {
         type: Boolean,
@@ -25,6 +33,11 @@ const BundleSchema = new Schema({
         type : Date, 
         default: Date.now 
     },
+    // NEED SOME IDENTIFIER IN PROD, OR STORE UNDER SHOP
+    // shop: {
+    //     type: String,
+    //     required: true
+    // }
 });
 
 export default mongoose.model('bundles', BundleSchema);

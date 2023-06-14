@@ -16,7 +16,7 @@ import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 import shopInDb from "./helpers/shopInDb.js";
 import { attachSellingPlan, cancelSubscription, createSellingPlan, createSubscription, detachSellingPlan, listCustomerSubscriptions, manageCustomerTag } from "./controllers/subscriptions.js";
-import { createBundleDraftOrder } from "./controllers/bundles.js";
+import { createBundle, createBundleDraftOrder } from "./controllers/bundles.js";
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -82,9 +82,13 @@ app.get("/api/products/create", async (_req, res) => {
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
 
-createBundleDraftOrder();
-
 // manageCustomerTag();
+// createBundle({
+//   masterVariantId: 45406402707763,
+//   bundleProducts: [{variantId:45392269279539, quantity:1}, {variantId:45324020711731, quantity:1}],
+//   title: "Hair Bundle!"
+// })
+// createBundleDraftOrder();
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res
