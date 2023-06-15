@@ -88,9 +88,10 @@ export default {
     deliveryMethod: DeliveryMethod.Http,
     callbackUrl: "/api/webhooks",
     callback: async (topic, shop, body, webhookId) => {
+      console.log('[APP INFO] /api/webhook (order/create) HIT')
       const payload = JSON.parse(body);
-      console.log('IN ORDER/CREATE WEBHOOK!')
-      bundleOrderWebhookHandler(order);
+      console.log('ORDER/CREATE DATA:', payload);
+      await bundleOrderWebhookHandler(payload);
     },
-  },
+  }
 };

@@ -8,7 +8,7 @@ const BundleSchema = new Schema({
         required: true
     },
     masterVariantId: {
-        type: String,
+        type: Number,
         required: true
     },
     masterInventoryId: {

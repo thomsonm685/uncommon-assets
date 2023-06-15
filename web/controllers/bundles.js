@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import Bundle from '../db/mongo/models/Bundle.js';
 
 export const createBundle = async ({ title, masterVariantId, bundleProducts }) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in createBundle');
@@ -34,7 +34,7 @@ export const createBundle = async ({ title, masterVariantId, bundleProducts }) =
 
     const newBundle = await new Bundle({
       title,
-      masterVariantId,
+      masterVariantId:parseInt(masterVariantId),
       bundleProducts,
       masterInventoryId
     });
@@ -50,20 +50,24 @@ export const createBundle = async ({ title, masterVariantId, bundleProducts }) =
 }
 
 export const createBundleDraftOrder = async (thisBundle) => {
-    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
     try{
       // MAY NEED TO ADD INVENTORY POLICY
       console.log('APP[INFO] in createBundleDraftOrder, masterVariantId:', thisBundle.masterVariantId);
       // create client with session
       const client = new shopify.api.clients.Graphql({session});
+
+      console.log('THINGY:', thisBundle.bundleProducts.map(p=>({variantId:"gid://shopify/ProductVariant/"+p.variantId, quantity:p.quantity})))
       // send gql query to Shopify
+
+
       const queryRes = await client.query({
         data:{
           "query":
             `mutation {
                 draftOrderCreate(input: {
-                  lineItems: ${thisBundle.bundleProducts.map(p=>({variantId:'gid://shopify/ProductVariant/'+p.variantId, quantity:p.quantity}))},
+                  lineItems: ${thisBundle.bundleProducts.map(p=>({variantId:"gid://shopify/ProductVariant/"+p.variantId, quantity:p.quantity}))},
                   note: "Bundle Order"
                 }) {
                   draftOrder {
@@ -86,14 +90,14 @@ export const createBundleDraftOrder = async (thisBundle) => {
       console.log("APP[SUCCESS] createBundleDraftOrder:", queryRes.body.data);
     }
     catch(error){
-      console.log('APP[ERROR] createBundleDraftOrder:', error.response.errors);
+      console.log('APP[ERROR] createBundleDraftOrder:', error);
     }
     return
 }
 
 export const publishBundleDraftOrder = async (draftOrderId) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in publishBundleDraftOrder');
@@ -124,7 +128,7 @@ export const publishBundleDraftOrder = async (draftOrderId) => {
 
 export const adjustBundleInventory = async (thisBundle) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in adjustBundleInventory');
@@ -220,11 +224,13 @@ export const bundleOrderWebhookHandler = async (order) => {
     console.log('APP[INFO] in bundleOrderWebhookHandler');
     // GET ALL BUNDLES
     const allBundles = await Bundle.find({});
+    console.log('allBundles:', allBundles);
     // FILTER THROUGH LINE ITEMS
     for(let i=0; i<order.line_items.length; i++){
       const item = order.line_items[i];
       // CHECK IF LINE ITEM IS MASTER BUNDLE ITEM
-      const thisBundle = allBundles.filter(b=>b.masterVariantId===item.variantId)[0];
+      console.log('item:', item);
+      const thisBundle = allBundles.filter(b=>b.masterVariantId===item.variant_id)[0];
       if(thisBundle){
         // IF SO, PLACE BUNDLE ORDER FOR EACH QTY
         for(let j=0; j<item.quantity; j++){
@@ -233,10 +239,10 @@ export const bundleOrderWebhookHandler = async (order) => {
       }
     }
 
-    console.log("APP[SUCCESS] bundleOrderWebhookHandler:", queryRes.body.data);
+    console.log("APP[SUCCESS] bundleOrderWebhookHandler");
   }
   catch(error){
-    console.log('APP[ERROR] bundleOrderWebhookHandler:', error.response.errors);
+    console.log('APP[ERROR] bundleOrderWebhookHandler:', error);
   }
   return
 }
