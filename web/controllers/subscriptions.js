@@ -1,14 +1,98 @@
 
+import Subscription from '../db/mongo/models/Subscription.js';
 import shopify from '../shopify.js';
 import mongoose from 'mongoose';
 
 // CONTROLS MOST ACTIONS FOR THE SUBSCRIPTION APP
 
+
+// get all subscriptions on the store
+export const getAllSubscriptions = async () => {
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+
+  try{
+    console.log('APP[INFO] in getAllSubscriptions');
+    // create client with session
+    const client = new shopify.api.clients.Graphql({session});
+    // build query
+    let gqlQuery = (cursor) => `
+    {
+      subscriptionContracts (first:50) {
+        pageInfo{
+            hasNextPage
+        }
+        edges {
+            node {
+                id
+                customer {
+                    id
+                    firstName
+                    lastName
+                    email
+                }
+                status
+                createdAt
+                nextBillingDate
+                originOrder {
+                     id
+                     lineItems (first:10) { 
+                         edges {
+                             node {
+                                variant {
+                                    id
+                                    title
+                                    price
+                                }
+                                quantity
+                             }
+                         }
+                     }
+                }
+            }
+        }
+      }
+    }
+    `
+
+    const allSubscriptions = [];
+
+    // send gql query to Shopify
+    const pollSubscriptions = async (cursor=null) => {
+
+      console.log('running in pollSubscriptions');
+
+      console.log('query:', gqlQuery(cursor));
+
+      const customerRes = await client.query({
+        data:{
+            "query":gqlQuery(cursor),
+        }
+      });
+
+      const theseSubscriptons = customerRes.body.data.subscriptionContracts;
+
+      console.log('theseSubscriptons:', theseSubscriptons);
+
+      if(theseSubscriptons.pageInfo.hasNextPage) await pollSubscriptions(theseSubscriptons.pageInfo.endCursor);
+    }
+
+    await pollSubscriptions();
+
+    console.log("APP[SUCCESS] in getAllSubscriptions");
+    return allSubscriptions;
+  }
+  catch(error){
+    console.log('APP[ERROR] in getAllSubscriptions:', error.response.errors);
+  }
+
+}
+
+
 // create a selling plan in shopify
 // export const createSellingPlan = async ({session, options}) => {
 export const createSellingPlan = async () => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in createSellingPlan');
@@ -81,7 +165,7 @@ export const deleteSellingPlan = async () => {
 export const attachSellingPlan = async () => {
   
   // TEST DATA
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
   const planId = 'gid://shopify/SellingPlanGroup/1582268723';
   const productIds = ["gid://shopify/Product/8313364939059"];
 
@@ -125,7 +209,7 @@ export const attachSellingPlan = async () => {
 // remove selling plan from a product in shopify
 export const detachSellingPlan = async () => {
   // TEST DATA
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
   const planId = 'gid://shopify/SellingPlanGroup/1582268723';
   const productIds = ["gid://shopify/Product/8313364939059"];
 
@@ -165,7 +249,7 @@ export const detachSellingPlan = async () => {
 
 // create subscription with customer ID and product with selling plan
 export const createSubscription = async () => {
-   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
    const customerId = "gid://shopify/Customer/6984955593011";
    const variantId = "gid://shopify/ProductVariant/45262107279667"
  
@@ -240,21 +324,21 @@ export const createSubscription = async () => {
    
    }
    catch(error){
-     console.log('APP[ERROR] removing product to selling plan:', error.response.errors);
+     console.log('APP[ERROR]  creating subscription:', error.response);
    }
 
 }
 
 // delete subscription with subscription ID
-export const cancelSubscription = async () => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+export const cancelSubscription = async (contractId) => {
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     const client = new shopify.api.clients.Graphql({session});
 
     console.log('APP[INFO] in cancelSubscription');
 
-    const contractId = 'gid://shopify/SubscriptionContract/10992681267';
+    // const contractId = 'gid://shopify/SubscriptionContract/11030233395';
     let draftContractId = null;
   
 
@@ -360,9 +444,119 @@ export const cancelSubscription = async () => {
 
 }
 
+export const activateSubscription = async (contractId) => {
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+
+  try{
+    const client = new shopify.api.clients.Graphql({session});
+
+    console.log('APP[INFO] in activateSubscription');
+
+    let draftContractId = null;
+
+    // create draft
+    let gqlQuery = `
+    mutation subscriptionContractUpdate($contractId: ID!) {
+      subscriptionContractUpdate(contractId: $contractId) {
+        draft {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+       `
+       // send gql query to Shopify
+      const createSubDraftRes = await client.query({
+        data:{
+            "query":gqlQuery,
+            "variables":
+            {
+              "contractId": contractId
+            }
+        }
+      });
+  
+      console.log("APP[SUCCESS] creating subscription draft:", createSubDraftRes.body.data);
+  
+      draftContractId = createSubDraftRes.body.data.subscriptionContractUpdate.draft.id;
+  
+    // update draft
+  
+    gqlQuery = `
+    mutation subscriptionDraftUpdate($draftId: ID!, $input: SubscriptionDraftInput!) {
+      subscriptionDraftUpdate(draftId: $draftId, input: $input) {
+        draft {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+       `
+       // send gql query to Shopify
+      const updateSubDraftRes = await client.query({
+        data:{
+            "query":gqlQuery,
+            "variables":
+            {
+              "draftId": draftContractId,
+              "input": {
+                "status": "ACTIVE"
+              }
+            }
+            
+        }
+      });
+  
+      console.log("APP[SUCCESS] updating subscription draft status to active:", updateSubDraftRes.body.data);
+  
+    // commit draft
+
+    gqlQuery = `
+    mutation subscriptionDraftCommit($draftId: ID!) {
+      subscriptionDraftCommit(draftId: $draftId) {
+        contract {
+            id
+            status
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    
+       `
+       // send gql query to Shopify
+      const commitDraftUpdate = await client.query({
+        data:{
+            "query":gqlQuery,
+            "variables":
+            {
+              "draftId": draftContractId
+            }
+        }
+      });
+
+      await manageCustomerTag();
+  
+      console.log("APP[SUCCESS] committing subscription draft:", commitDraftUpdate.body.data);
+  }
+  catch(e){
+    console.log('APP[ERROR] in cancelSubscription:', e);
+
+  }
+
+}
+
 
 export const listCustomerSubscriptions = async () => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     const client = new shopify.api.clients.Graphql({session});
@@ -420,7 +614,7 @@ export const listCustomerSubscriptions = async () => {
 }
 
 export const manageCustomerTag = async () => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     const client = new shopify.api.clients.Graphql({session});
@@ -492,3 +686,187 @@ export const manageCustomerTag = async () => {
   }
 }
 
+export const subscriptionCreateWebhookHandler = async (subWebhookData) => {
+
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+
+  try{
+    console.log('APP[INFO] in subscriptionCreateWebhookHandler');
+    console.log("subWebhookData:", subWebhookData);
+
+    // create client with session
+    const client = new shopify.api.clients.Graphql({session});
+    // build query
+    const gqlQuery = `
+    {
+      subscriptionContract(id:"${subWebhookData.admin_graphql_api_id}") {
+        id
+        status
+        deliveryPrice {
+            amount
+        }
+        nextBillingDate
+        lastPaymentStatus
+        lines(first: 50){
+            edges{
+                node{
+                    productId
+                    title
+                    variantTitle
+                    variantId
+                    variantImage{
+                        url
+                    }
+                    currentPrice {
+                        amount
+                    }
+                    quantity
+                }
+            }
+        }
+        note
+        customerPaymentMethod {
+            id
+        }
+        customer {
+            id
+            firstName
+            lastName
+            email
+        }
+        orders (first:50){
+            edges {
+                node {
+                    id
+                }
+            }
+        }
+      }
+    }
+    `
+    // send gql query to Shopify
+    const queryRes = await client.query({
+      data:{
+          "query":gqlQuery
+      }
+    });
+
+    const fullSubData = queryRes.body.data.subscriptionContract;
+    console.log('lineItems:',  fullSubData.lines.edges.map(edge=>edge.node));
+
+    // CREATE SUBSCRIPTION
+    const newSubscription = new Subscription({
+      customer: fullSubData.customer,
+      contractId: fullSubData.id,
+      status: fullSubData.status,
+      nextBillingDate: fullSubData.nextBillingDate,
+      lastPaymentStatus: fullSubData.lastPaymentStatus,
+      originOrder: fullSubData.originOrder?.id,
+      customerPaymentMethod: fullSubData.customerPaymentMethod.id,
+      createdAt: fullSubData.createdAt,
+      deliveryPrice: fullSubData.deliveryPrice,
+    });
+
+    newSubscription.lineItems = fullSubData.lines.edges.map(edge=>edge.node);
+    newSubscription.orders = fullSubData.orders.edges.map(edge=>edge.node);
+
+    await newSubscription.save();
+
+    console.log("APP[SUCCESS] subscriptionCreateWebhookHandler");
+  }
+  catch(error){
+    console.log('APP[ERROR] subscriptionCreateWebhookHandler:', error);
+  }
+  return
+}
+
+export const subscriptionUpdateWebhookHandler = async (subWebhookData) => {
+
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+
+  try{
+    console.log('APP[INFO] in subscriptionUpdateWebhookHandler');
+    // CREATE SUBSCRIPTION
+    const foundSubscription = await Subscription.findOne({contractId:subWebhookData.admin_graphql_api_id})
+
+    if(!foundSubscription) return await subscriptionCreateWebhookHandler(subWebhookData);
+
+    const client = new shopify.api.clients.Graphql({session});
+    // build query
+    const gqlQuery = `
+    {
+      subscriptionContract(id:"${subWebhookData.admin_graphql_api_id}") {
+        id
+        status
+        deliveryPrice {
+            amount
+        }
+        nextBillingDate
+        lastPaymentStatus
+        lines(first: 50){
+            edges{
+                node{
+                    productId
+                    title
+                    variantTitle
+                    variantId
+                    variantImage{
+                        url
+                    }
+                    currentPrice {
+                        amount
+                    }
+                    quantity
+                }
+            }
+        }
+        note
+        customerPaymentMethod {
+            id
+        }
+        customer {
+            id
+            firstName
+            lastName
+            email
+        }
+        orders (first:50){
+            edges {
+                node {
+                    id
+                }
+            }
+        }
+      }
+    }
+    `
+    // send gql query to Shopify
+    const queryRes = await client.query({
+      data:{
+          "query":gqlQuery
+      }
+    });
+
+    const fullSubData = queryRes.body.data.subscriptionContract;
+
+    foundSubscription.customer  = fullSubData.customer,
+    foundSubscription.contractId  = fullSubData.id,
+    foundSubscription.status  = fullSubData.status,
+    foundSubscription.nextBillingDate  = fullSubData.nextBillingDate,
+    foundSubscription.lastPaymentStatus  = fullSubData.lastPaymentStatus,
+    foundSubscription.originOrder  = fullSubData.originOrder?.id,
+    foundSubscription.customerPaymentMethod  = fullSubData.customerPaymentMethod.id,
+    foundSubscription.createdAt  = fullSubData.createdAt,
+    foundSubscription.deliveryPrice  = fullSubData.deliveryPrice,
+    foundSubscription.lineitems = fullSubData.lines.edges.map(edge=>edge.node),
+    foundSubscription.orders = fullSubData.orders.edges.map(edge=>edge.node)
+
+    await foundSubscription.save();
+
+    console.log("APP[SUCCESS] subscriptionUpdateWebhookHandler");
+  }
+  catch(error){
+    console.log('APP[ERROR] subscriptionUpdateWebhookHandler:', error);
+  }
+  return
+}

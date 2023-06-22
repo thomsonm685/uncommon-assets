@@ -3,11 +3,11 @@ import { TextStyle, Icon, Button, ButtonGroup, Stack, Collapsible } from "@shopi
 import { useState } from "react";
 import SubscriptionItem from "./SubscriptionItem";
 
-export default function({customer, selectedCustomer, setSelectedCustomer}){
+export default function({customer, selectedCustomer, setSelectedCustomer, loadIntial}){
 
     const [open,setOpen] = useState(false);
 
-    const {id, name} = customer;
+    const {id, firstName, lastName} = customer;
 
     return(
         <>
@@ -15,9 +15,9 @@ export default function({customer, selectedCustomer, setSelectedCustomer}){
                 <div style={{width:'50%'}}>
                 
                     <Stack vertical>
-                        <h3><TextStyle variation="strong">Name:</TextStyle> {name}</h3>
+                        <h3><TextStyle variation="strong">Name:</TextStyle> {firstName} {lastName}</h3>
                         <h3><TextStyle variation="strong">ID:</TextStyle> {id}</h3>
-                        <h3><TextStyle variation="strong">Items:</TextStyle> {customer.subscriptions.map(sub=>sub.lineItems.map(l=>l.title).join(', ')).join()}</h3>
+                        <h3><TextStyle variation="strong">Items:</TextStyle> {customer.subscriptions.map(sub=>sub.lineItems.map(l=>l.title)).join(', ')}</h3>
                     </Stack>
                 </div>
                 <div style={{width:'50%', display:'flex', justifyContent:'flex-end'}}>
@@ -32,7 +32,7 @@ export default function({customer, selectedCustomer, setSelectedCustomer}){
                     expandOnPrint
                 >            
                 {customer.subscriptions.map(subscription=>(
-                    <SubscriptionItem subscription={subscription}></SubscriptionItem>
+                    <SubscriptionItem subscription={subscription} loadIntial={loadIntial}></SubscriptionItem>
                 ))}
                 <br></br>
                 <Button  primary>Create Subscription</Button>

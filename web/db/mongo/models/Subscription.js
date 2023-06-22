@@ -3,26 +3,54 @@ const Schema = mongoose.Schema;
 
 // Schema For The Design Resource
 const SubscriptionSchema = new Schema({
-    customerId: {
-        type: String,
+    customer: {
+        type: Object,
+        required: true
+    },
+    deliveryPrice: {
+        type: Object,
         required: true
     },
     contractId: {
         type: String,
         required: true
     },
+    status: {
+        type: String,
+        required: true
+    },
+    nextBillingDate: {
+        type: Date,
+        required: false
+    },
+    originOrder: {
+        type: String,
+        required: false
+    },
+    lastPaymentStatus: {
+        type: String,
+        required: false
+    },
     lineItems: {
         type: Array,
         required: true
     },
-    payment: {
-        type: Object,
+    customerPaymentMethod: {
+        type: String,
         required: true,
         default: {}
     },
     createdAt: {
         type : Date, 
         default: Date.now 
+    },
+    lineItems: {
+        type: Array,
+        required: true
+    },
+    orders: {
+        type: Array,
+        required: true
     },
 });
 

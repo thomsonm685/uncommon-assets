@@ -1,5 +1,6 @@
 import { DeliveryMethod } from "@shopify/shopify-api";
 import { bundleOrderWebhookHandler } from "./controllers/bundles.js";
+import { subscriptionCreateWebhookHandler, subscriptionUpdateWebhookHandler } from "./controllers/subscriptions.js";
 
 /**
  * @type {{[key: string]: import("@shopify/shopify-api").WebhookHandler}}
@@ -92,6 +93,26 @@ export default {
       const payload = JSON.parse(body);
       console.log('ORDER/CREATE DATA:', payload);
       await bundleOrderWebhookHandler(payload);
+    },
+  },
+  SUBSCRIPTION_CONTRACTS_CREATE: {
+    deliveryMethod: DeliveryMethod.Http,
+    callbackUrl: "/api/webhooks",
+    callback: async (topic, shop, body, webhookId) => {
+      console.log('[APP INFO] /api/webhook (subscription/create) HIT')
+      const payload = JSON.parse(body);
+      console.log('SUBSCRIPTION/CREATE DATA:', payload);
+      await subscriptionCreateWebhookHandler(payload);
+    },
+  },
+  SUBSCRIPTION_CONTRACTS_UPDATE: {
+    deliveryMethod: DeliveryMethod.Http,
+    callbackUrl: "/api/webhooks",
+    callback: async (topic, shop, body, webhookId) => {
+      console.log('[APP INFO] /api/webhook (subscription/update) HIT')
+      const payload = JSON.parse(body);
+      console.log('SUBSCRIPTION/UPDATE DATA:', payload);
+      await subscriptionUpdateWebhookHandler(payload);
     },
   }
 };

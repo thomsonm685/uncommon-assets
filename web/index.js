@@ -16,12 +16,13 @@ import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 import shopInDb from "./helpers/shopInDb.js";
 import { attachSellingPlan, cancelSubscription, createSellingPlan, createSubscription, detachSellingPlan, listCustomerSubscriptions, manageCustomerTag } from "./controllers/subscriptions.js";
-import { createBundle, createBundleDraftOrder } from "./controllers/bundles.js";
+import { createBundle, createBundleDraftOrder, deleteBundle, updateBundle } from "./controllers/bundles.js";
+import subscriptionRoutes from './routes/api/Subscriptions.js';
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
   10
-);
+); 
 
 const STATIC_PATH =
   process.env.NODE_ENV === "production"
@@ -53,42 +54,58 @@ app.post(
 
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js
-
-app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next));
-
 app.use(express.json());
 
-app.get("/api/products/count", async (_req, res) => {
-  const countData = await shopify.api.rest.Product.count({
-    session: res.locals.shopify.session,
-  });
-  res.status(200).send(countData);
-});
+// app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next));
+app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes]);
 
-app.get("/api/products/create", async (_req, res) => {
-  let status = 200;
-  let error = null;
 
-  try {
-    await productCreator(res.locals.shopify.session);
-  } catch (e) {
-    console.log(`Failed to process products/create: ${e.message}`);
-    status = 500;
-    error = e.message; 
-  }
-  res.status(status).send({ success: status === 200, error });
-});
+
+// app.get("/api/products/count", async (_req, res) => {
+//   const countData = await shopify.api.rest.Product.count({
+//     session: res.locals.shopify.session,
+//   });
+//   res.status(200).send(countData);
+// });
+
+// app.get("/api/products/create", async (_req, res) => {
+//   let status = 200;
+//   let error = null;
+
+//   try {
+//     await productCreator(res.locals.shopify.session); 
+//   } catch (e) {
+//     console.log(`Failed to process products/create: ${e.message}`);
+//     status = 500;
+//     error = e.message; 
+//   }
+//   res.status(status).send({ success: status === 200, error });
+// });
 
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
-
-// manageCustomerTag();
+ 
+// createSubscription();
+// cancelSubscription(); 
 // createBundle({
 //   masterVariantId: 45406402707763,
 //   bundleProducts: [{variantId:45392269279539, quantity:1}, {variantId:45324020711731, quantity:1}],
-//   title: "Hair Bundle!"
+//   title: "Hair Bundle!",
+//   aggregateInventory: true
 // })
-// createBundleDraftOrder();
+// updateBundle({
+//   masterVariantId: 45406402707763,
+//   bundleProducts: [{variantId:45392269279539, quantity:1}],
+//   title: "NOT a hair bundle!",
+//   aggregateInventory: true
+// })
+// deleteBundle({masterVariantId: 45406402707763});
+// createBundle({
+//   masterVariantId: 45406402707763,
+//   bundleProducts: [{variantId:45392269279539, quantity:1}, {variantId:45324020711731, quantity:1}],
+//   title: "Hair Bundle!",
+//   aggregateInventory: true
+// })
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res

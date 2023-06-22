@@ -10,52 +10,52 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import CustomerSearchItem from "./CustomerSearchItem";
 
 
-export default function({customers, setSelectedCustomer}) {
+export default function({customers, setSelectedCustomer, loadIntial}) {
 
-    const testCustomers = [
-        {
-            name:'Michael Thomson',
-            id:'1', 
-            subscriptions: [
-                {
-                    id:68452,
-                    lineItems: [
-                        {
-                            title: 'Gold Membership'
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            name:'John Smith',
-            id:'2', 
-            subscriptions: [
-                {
-                    id:78695,
-                    lineItems: [
-                        {
-                            title: 'Gold Membership'
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            name:'Melissa Davis',
-            id:'3', 
-            subscriptions: [
-                {
-                    id:98752,
-                    lineItems: [
-                        {
-                            title: 'Gold Membership'
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
+    // const testCustomers = [
+    //     {
+    //         name:'Michael Thomson',
+    //         id:'1', 
+    //         subscriptions: [
+    //             {
+    //                 id:68452,
+    //                 lineItems: [
+    //                     {
+    //                         title: 'Gold Membership'
+    //                     }
+    //                 ]
+    //             }
+    //         ]
+    //     },
+    //     {
+    //         name:'John Smith',
+    //         id:'2', 
+    //         subscriptions: [
+    //             {
+    //                 id:78695,
+    //                 lineItems: [
+    //                     {
+    //                         title: 'Gold Membership'
+    //                     }
+    //                 ]
+    //             }
+    //         ]
+    //     },
+    //     {
+    //         name:'Melissa Davis',
+    //         id:'3', 
+    //         subscriptions: [
+    //             {
+    //                 id:98752,
+    //                 lineItems: [
+    //                     {
+    //                         title: 'Gold Membership'
+    //                     }
+    //                 ]
+    //             }
+    //         ]
+    //     }
+    // ]
 
     const [queryValue, setQueryValue] = useState("");
 
@@ -94,9 +94,9 @@ export default function({customers, setSelectedCustomer}) {
 
     function renderItem(customer) {
         return (
-        <div class="searchItem" data-name={`${customer.name} ${customer.id}`} style={{borderBottom:'1px solid #e1e3e5'}}>
+        <div class="searchItem" data-name={`${customer.firstName} ${customer.lastName} ${customer.id}`} style={{borderBottom:'1px solid #e1e3e5'}}>
             <ResourceItem id={customer.id}>       
-                <CustomerSearchItem customer={customer} setSelectedCustomer={setSelectedCustomer}></CustomerSearchItem>      
+                <CustomerSearchItem loadIntial={loadIntial} customer={customer} setSelectedCustomer={setSelectedCustomer}></CustomerSearchItem>      
             </ResourceItem>
         </div>
         );
@@ -104,16 +104,16 @@ export default function({customers, setSelectedCustomer}) {
 
     return (
         <>
-        {console.log('customers:', testCustomers)}
+        {console.log('customers:', customers)}
         <br/>
         <Scrollable style={{height: '600px'}}> 
-            {!testCustomers?
+            {!customers?
             <div  style={{width:'min-content', margin:'auto'}}>
             <Spinner/>
             </div>:
             <ResourceList 
             resourceName={resourceName}
-            items={testCustomers}
+            items={customers}
             renderItem={renderItem}
             filterControl={filterControl}
             />

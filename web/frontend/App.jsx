@@ -26,6 +26,10 @@ export default function App() {
                   destination: "/Subscriptions",
                 },
                 {
+                  label: "Bundles",
+                  destination: "/Bundles",
+                },
+                {
                   label: "Events",
                   destination: "/Events",
                 },
