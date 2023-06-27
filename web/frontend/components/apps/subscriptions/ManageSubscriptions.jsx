@@ -9,10 +9,12 @@ export default function ManageSubscriptions() {
   const fetch = useAuthenticatedFetch();
 
   const [customers,setCustomers] = useState(null);
+  const [products,setProducts] = useState(null);
 
   useEffect(()=>{
     // get store subscriptions
     loadIntial();
+    loadProducts();
   }, []);
 
   const loadIntial = async () => {
@@ -36,6 +38,21 @@ export default function ManageSubscriptions() {
     })
 
     setCustomers(tempCustomers);
+
+    // const productsRes = await (await fetch('/api/products')).json();
+    // console.log('productsRes:', productsRes.data.products);
+
+    // setProducts(productsRes.data.products);
+
+  }
+
+  const loadProducts = async () => {
+    const productsRes = await (await fetch('/api/products')).json();
+    console.log('productsRes:', productsRes.data.products);
+
+    setProducts(productsRes.data.products);
+
+    return
   }
 
   return (
@@ -46,7 +63,7 @@ export default function ManageSubscriptions() {
             <Layout.Section>
             <Card sectioned>
               <Text variant="headingMd" as="h2">Search Customers</Text>
-              <CustomerSearch loadIntial={loadIntial} customers={customers}></CustomerSearch>
+              <CustomerSearch loadIntial={loadIntial} customers={customers} products={products}></CustomerSearch>
             </Card>
             </Layout.Section>
         </Layout>

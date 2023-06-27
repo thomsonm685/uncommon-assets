@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 
 // get all subscriptions on the store
 export const getAllSubscriptions = async () => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in getAllSubscriptions');
@@ -92,7 +92,7 @@ export const getAllSubscriptions = async () => {
 // export const createSellingPlan = async ({session, options}) => {
 export const createSellingPlan = async () => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in createSellingPlan');
@@ -165,7 +165,7 @@ export const deleteSellingPlan = async () => {
 export const attachSellingPlan = async () => {
   
   // TEST DATA
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
   const planId = 'gid://shopify/SellingPlanGroup/1582268723';
   const productIds = ["gid://shopify/Product/8313364939059"];
 
@@ -209,7 +209,7 @@ export const attachSellingPlan = async () => {
 // remove selling plan from a product in shopify
 export const detachSellingPlan = async () => {
   // TEST DATA
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
   const planId = 'gid://shopify/SellingPlanGroup/1582268723';
   const productIds = ["gid://shopify/Product/8313364939059"];
 
@@ -249,7 +249,7 @@ export const detachSellingPlan = async () => {
 
 // create subscription with customer ID and product with selling plan
 export const createSubscription = async () => {
-   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
    const customerId = "gid://shopify/Customer/6984955593011";
    const variantId = "gid://shopify/ProductVariant/45262107279667"
  
@@ -331,7 +331,7 @@ export const createSubscription = async () => {
 
 // delete subscription with subscription ID
 export const cancelSubscription = async (contractId) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     const client = new shopify.api.clients.Graphql({session});
@@ -445,7 +445,7 @@ export const cancelSubscription = async (contractId) => {
 }
 
 export const activateSubscription = async (contractId) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     const client = new shopify.api.clients.Graphql({session});
@@ -556,7 +556,7 @@ export const activateSubscription = async (contractId) => {
 
 
 export const listCustomerSubscriptions = async () => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     const client = new shopify.api.clients.Graphql({session});
@@ -614,7 +614,7 @@ export const listCustomerSubscriptions = async () => {
 }
 
 export const manageCustomerTag = async () => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     const client = new shopify.api.clients.Graphql({session});
@@ -688,7 +688,7 @@ export const manageCustomerTag = async () => {
 
 export const subscriptionCreateWebhookHandler = async (subWebhookData) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in subscriptionCreateWebhookHandler');
@@ -782,7 +782,7 @@ export const subscriptionCreateWebhookHandler = async (subWebhookData) => {
 
 export const subscriptionUpdateWebhookHandler = async (subWebhookData) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in subscriptionUpdateWebhookHandler');

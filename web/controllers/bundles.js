@@ -6,7 +6,7 @@ import Bundle from '../db/mongo/models/Bundle.js';
 import keysToCamel from '../helpers/keysToCamel.js';
 
 export const createBundle = async ({ title, masterVariantId, bundleProducts, aggregateInventory }) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in createBundle');
@@ -52,7 +52,7 @@ export const createBundle = async ({ title, masterVariantId, bundleProducts, agg
 }
 
 export const deleteBundle = async ({masterVariantId}) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in deleteBundle');
@@ -71,7 +71,7 @@ export const deleteBundle = async ({masterVariantId}) => {
 }
 
 export const updateBundle = async ({ title, bundleProducts, aggregateInventory, masterVariantId }) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in updateBundle');
@@ -99,7 +99,7 @@ export const updateBundle = async ({ title, bundleProducts, aggregateInventory, 
 
 
 export const createBundleDraftOrder = async (thisBundle, orderData) => {
-    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
     try{
       // MAY NEED TO ADD INVENTORY POLICY
@@ -206,7 +206,7 @@ export const createBundleDraftOrder = async (thisBundle, orderData) => {
 
 export const publishBundleDraftOrder = async (draftOrderId) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in publishBundleDraftOrder');
@@ -237,7 +237,7 @@ export const publishBundleDraftOrder = async (draftOrderId) => {
 
 export const adjustBundleInventory = async (thisBundle) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in adjustBundleInventory');

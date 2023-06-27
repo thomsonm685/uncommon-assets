@@ -10,52 +10,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import CustomerSearchItem from "./CustomerSearchItem";
 
 
-export default function({customers, setSelectedCustomer, loadIntial}) {
-
-    // const testCustomers = [
-    //     {
-    //         name:'Michael Thomson',
-    //         id:'1', 
-    //         subscriptions: [
-    //             {
-    //                 id:68452,
-    //                 lineItems: [
-    //                     {
-    //                         title: 'Gold Membership'
-    //                     }
-    //                 ]
-    //             }
-    //         ]
-    //     },
-    //     {
-    //         name:'John Smith',
-    //         id:'2', 
-    //         subscriptions: [
-    //             {
-    //                 id:78695,
-    //                 lineItems: [
-    //                     {
-    //                         title: 'Gold Membership'
-    //                     }
-    //                 ]
-    //             }
-    //         ]
-    //     },
-    //     {
-    //         name:'Melissa Davis',
-    //         id:'3', 
-    //         subscriptions: [
-    //             {
-    //                 id:98752,
-    //                 lineItems: [
-    //                     {
-    //                         title: 'Gold Membership'
-    //                     }
-    //                 ]
-    //             }
-    //         ]
-    //     }
-    // ]
+export default function({customers, setSelectedCustomer, loadIntial, products}) {
 
     const [queryValue, setQueryValue] = useState("");
 
@@ -96,7 +51,7 @@ export default function({customers, setSelectedCustomer, loadIntial}) {
         return (
         <div class="searchItem" data-name={`${customer.firstName} ${customer.lastName} ${customer.id}`} style={{borderBottom:'1px solid #e1e3e5'}}>
             <ResourceItem id={customer.id}>       
-                <CustomerSearchItem loadIntial={loadIntial} customer={customer} setSelectedCustomer={setSelectedCustomer}></CustomerSearchItem>      
+                <CustomerSearchItem loadIntial={loadIntial} customer={customer} setSelectedCustomer={setSelectedCustomer} products={products}></CustomerSearchItem>      
             </ResourceItem>
         </div>
         );

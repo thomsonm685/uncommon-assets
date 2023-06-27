@@ -6,7 +6,7 @@ import Subscriptions from '../../db/mongo/models/Subscription.js';
 import { activateSubscription, cancelSubscription, getAllSubscriptions } from '../../controllers/subscriptions.js';
 
 // RETURNS LIST OF ALL SUBSCRIPTIONS
-router.get('/', async (req, res) => {
+router.get('/subscriptions', async (req, res) => {
 	console.log('APP[INFO] /subscriptions [GET] hit');
 	console.log('IN THIS ONE')
 	try {
@@ -81,8 +81,8 @@ router.get('/', async (req, res) => {
 // 	}
 // });
 
-// DELETES SINGLE SUBSCRIPTION
-router.put('/', async (req, res) => {
+// UPDATES SINGLE SUBSCRIPTION
+router.put('/subscriptions', async (req, res) => {
 	console.log('APP[INFO] /subscriptions/:id [DELETE] hit');
 	try {
 
@@ -95,6 +95,21 @@ router.put('/', async (req, res) => {
 		res.status(200).send();
 	} catch (error) {
 		console.log('APP[ERROR] in /subscriptions/:id [DELETE] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
+// CREATES SINGLE SUBSCRIPTION
+router.post('/subscriptions', async (req, res) => {
+	console.log('APP[INFO] /subscriptions [POST] hit');
+	try {
+
+		const newSubData = req.body.subscription;
+
+		console.log('APP[SUCCESS] in /subscriptions [POST] handler');
+		res.status(200).send();
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions [POST] handler:', error);
 		res.status(400).json({ data: error, success: false });
 	}
 });

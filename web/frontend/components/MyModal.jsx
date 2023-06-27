@@ -9,10 +9,10 @@ const MyModal = ({primaryAction, content, title, modalActive, primaryText, statu
                 open={modalActive}
                 title={title}
                 onClose= {closeModal}
-                primaryAction={{
+                primaryAction={primaryAction?{
                 content: primaryText,
                 onAction: primaryAction,
-                }}
+                }:null}
             >
                 <Modal.Section>
                 <Stack vertical>

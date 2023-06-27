@@ -18,6 +18,7 @@ import shopInDb from "./helpers/shopInDb.js";
 import { attachSellingPlan, cancelSubscription, createSellingPlan, createSubscription, detachSellingPlan, listCustomerSubscriptions, manageCustomerTag } from "./controllers/subscriptions.js";
 import { createBundle, createBundleDraftOrder, deleteBundle, updateBundle } from "./controllers/bundles.js";
 import subscriptionRoutes from './routes/api/Subscriptions.js';
+import productRoutes from './routes/api/Products.js';
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -57,7 +58,7 @@ app.post(
 app.use(express.json());
 
 // app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next));
-app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes]);
+app.use("/api", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes, productRoutes]);
 
 
 
@@ -81,13 +82,32 @@ app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) =
 //   }
 //   res.status(status).send({ success: status === 200, error });
 // });
-
+ 
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
  
 // createSubscription();
-// cancelSubscription(); 
-// createBundle({
+// cancelSubscription('gid://shopify/SubscriptionContract/11032101171'); 
+
+
+// cancelSubscription('gid://shopify/SubscriptionContract/11028070707')
+// cancelSubscription('gid://shopify/SubscriptionContract/11028103475')
+// cancelSubscription('gid://shopify/SubscriptionContract/11028136243')
+// cancelSubscription('gid://shopify/SubscriptionContract/11028169011')
+// cancelSubscription('gid://shopify/SubscriptionContract/11028201779')
+// cancelSubscription('gid://shopify/SubscriptionContract/11029807411')
+// cancelSubscription('gid://shopify/SubscriptionContract/11029840179')
+// cancelSubscription('gid://shopify/SubscriptionContract/11029905715')
+// cancelSubscription('gid://shopify/SubscriptionContract/11029938483')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030004019')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030036787')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030069555')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030102323')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030135091')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030200627')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030233395')
+// cancelSubscription('gid://shopify/SubscriptionContract/11030266163')
+
 //   masterVariantId: 45406402707763,
 //   bundleProducts: [{variantId:45392269279539, quantity:1}, {variantId:45324020711731, quantity:1}],
 //   title: "Hair Bundle!",
