@@ -19,6 +19,7 @@ import { attachSellingPlan, cancelSubscription, createSellingPlan, createSubscri
 import { createBundle, createBundleDraftOrder, deleteBundle, updateBundle } from "./controllers/bundles.js";
 import subscriptionRoutes from './routes/api/Subscriptions.js';
 import productRoutes from './routes/api/Products.js';
+import customerRoutes from './routes/api/Customers.js';
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -58,7 +59,7 @@ app.post(
 app.use(express.json());
 
 // app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next));
-app.use("/api", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes, productRoutes]);
+app.use("/api", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes, productRoutes,customerRoutes]);
 
 
 

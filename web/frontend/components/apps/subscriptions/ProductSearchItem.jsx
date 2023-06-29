@@ -4,7 +4,7 @@ import { useState } from "react";
 import SubscriptionItem from "./SubscriptionItem";
 import MyModal from "../../MyModal";
 
-export default function({product, selectedProducts, setSelectedProducts}){
+export default function({product, selectedProducts, setSelectedProducts,setSelectedProduct, selectedProduct}){
 
     console.log('product:', product);
 
@@ -38,9 +38,14 @@ export default function({product, selectedProducts, setSelectedProducts}){
                 </div>
                 <div style={{width:'30%', display:'flex', justifyContent:'flex-end'}}>
                         <ButtonGroup>
-                            <Button  onClick={()=>incrementProduct(-1)}>-</Button>
+                            {/* <Button  onClick={()=>incrementProduct(-1)}>-</Button>
                             <h2><b>{selectedProducts.filter(p=>p.id===product.id)[0]?.qty || 0}</b></h2>
-                            <Button  onClick={()=>incrementProduct(1)}>+</Button>
+                            <Button  onClick={()=>incrementProduct(1)}>+</Button> */}
+                            {selectedProduct?.id===product.id?
+                            <Button destructive onClick={()=>setSelectedProduct(null)}>De-Select</Button>
+                            :<Button onClick={()=>setSelectedProduct(product)} disabled={selectedProduct}>Select</Button>
+                            }
+                            {/* <Button onClick={()=>setSelectedProduct(product)}>Select</Button> */}
                         </ButtonGroup>
                 </div>
             </div>

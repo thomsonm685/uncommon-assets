@@ -3,7 +3,7 @@ import ProductSearchItem from "./ProductSearchItem";
 import { useEffect, useState, useCallback} from "react";
 
 
-const SelectProducts =  ({products, selectedProducts, setSelectedProducts}) => {
+const SelectProducts =  ({products, selectedProducts, setSelectedProducts,setSelectedProduct, selectedProduct}) => {
 
     const [queryValue, setQueryValue] = useState("");
     const [variantProducts, setVariantProducts] = useState([]);
@@ -63,7 +63,7 @@ const SelectProducts =  ({products, selectedProducts, setSelectedProducts}) => {
         return (
         <div class="productSearchItem" data-name={`${product.title} ${product.id}`} style={{borderBottom:'1px solid #e1e3e5'}}>
             <ResourceItem id={product.id}>       
-                <ProductSearchItem product={product} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts}></ProductSearchItem>      
+                <ProductSearchItem selectedProduct={selectedProduct} product={product} setSelectedProduct={setSelectedProduct} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts}></ProductSearchItem>      
             </ResourceItem>
         </div>
         );

@@ -1,25 +1,50 @@
 
-import { TextStyle, Icon, Button, ButtonGroup, Stack, Collapsible, Modal } from "@shopify/polaris";
-import { useState } from "react";
+import { TextStyle, Icon, Button, ButtonGroup, Stack, Collapsible, Modal, DisplayText, Form, Text, TextField, DatePicker, Select } from "@shopify/polaris";
+import { useCallback, useState } from "react";
 import SubscriptionItem from "./SubscriptionItem";
 import MyModal from "../../MyModal";
 import SelectProducts from "./SelectProducts";
+import { useAuthenticatedFetch } from "../../../hooks";
 
 export default function({customer, selectedCustomer, setSelectedCustomer, loadIntial, products}){
+
+    const fetch = useAuthenticatedFetch();
 
     const [open,setOpen] = useState(false);
     const [createModalActive, setCreateModalActive] = useState(false);
     const [status,setStatus] = useState(null);
     const [modalStep,setModalStep] = useState(1);
     const [selectedProducts,setSelectedProducts] = useState([]); // {id:123, qty: 1}
+    const [selectedProduct,setSelectedProduct] = useState(null); // {id:123, qty: 1}
     const [chargeInterval,setChargeInterval] = useState(null);
     const [chargeIntervalCount,setChargeIntervalCount] = useState(null);
     const [deliveryInterval,setDeliveryInterval] = useState(null);
     const [deliveryIntervalCount,setDeliveryIntervalCount] = useState(null);
     const [price,setPrice] = useState(null);
-    const [nextCharge,setNextCharge] = useState(null);
+    // const [nextCharge,setNextCharge] = useState(null);
+    const [paymentMethodId,setPaymentMethodId] = useState(null);
+    const [addressId,setAddressId] = useState(null);
+    const [extraCustomerDetails,setExtraCustomerDetails] = useState(null);
+
+    
 
     const {id, firstName, lastName} = customer;
+
+    const [{month, year}, setDate] = useState({month: new Date().getMonth(), year: new Date().getFullYear()});
+    const [selectedDates, setSelectedDates] = useState({
+      start: new Date(),
+      end: new Date(),
+    });
+  
+    const handleMonthChange = useCallback(
+      (month,year) => setDate({month, year}),
+      [],
+    );
+
+    const intervalOptions = [
+        {label: 'Month', value: 'month'},
+        {label: 'Day', value: 'day'}
+    ];
     
     const createSubscription = async() => {
         setStatus('loading');
@@ -30,7 +55,17 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
             },
             body: JSON.stringify({
                 subscription: {
-
+                    price, 
+                    selectedProduct,
+                    customer,
+                    nextBillingDate,
+                    deliveryInterval,
+                    deliveryIntervalCount,
+                    chargeInterval,
+                    chargeIntervalCount, 
+                    paymentMethodId,
+                    addressId,
+                    // ALSO DATE
                 }
             })
         });
@@ -48,7 +83,16 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
     const toggleCreateModal = () => {
         setStatus(null);
         setModalStep(1);
+        setSelectedProducts([]);
+        setSelectedProduct(null);
         setCreateModalActive(!createModalActive);
+        getCustomerSpecific();
+    }
+
+    const getCustomerSpecific = async () => {
+        const customerRes = await (await fetch('/api/customers/'+customer.id)).json();
+        console.log('customerRes:', customerRes.data.customer);
+        setExtraCustomerDetails(customerRes.data.customer);
     }
 
 
@@ -68,17 +112,65 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
             {status?<StatusContent/>:
             modalStep<2?
             <>
-            <h1>
-                Select Products
-            </h1>
-            <SelectProducts selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts} products={products}></SelectProducts>
-            <Button onClick={()=>setModalStep(2)}>Next</Button>
+            <DisplayText>
+                <b>Select Product</b>
+            </DisplayText>
+            <SelectProducts selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts} products={products}></SelectProducts>
+            <Button disabled={!selectedProduct} onClick={()=>setModalStep(2)}>Next</Button>
             </>
             :
             <>
-            <h1>
-                Subscription Options
-            </h1>
+            <DisplayText>
+                <b>Subscription Options</b>
+            </DisplayText>
+            <Form>
+                <b>Price</b>
+                <TextField
+                    value={price}
+                    onChange={setPrice}
+                    autoComplete="off"
+                    type="number"
+                /> 
+                <b>Delivery Interval</b>
+                <Select
+                    label="Interval Unit"
+                    options={intervalOptions}
+                    onChange={setDeliveryInterval}
+                    value={deliveryInterval}
+                />
+                <TextField
+                    label="Inverval Count"
+                    value={deliveryIntervalCount}
+                    onChange={setDeliveryIntervalCount}
+                    autoComplete="off"
+                    type="number"
+                /> 
+                <b>Order Interval</b>
+                <Select
+                    label="Interval Unit"
+                    options={intervalOptions}
+                    onChange={setChargeInterval}
+                    value={chargeInterval}
+                />
+                <TextField
+                    label="Inverval Count"
+                    value={chargeIntervalCount}
+                    onChange={setChargeIntervalCount}
+                    autoComplete="off"
+                    type="number"
+                /> 
+                <b>Subscription Start Date</b>
+                <DatePicker
+                    month={month}
+                    year={year}
+                    onChange={setSelectedDates}
+                    onMonthChange={handleMonthChange}
+                    selected={selectedDates}
+                    allowRange={false}
+                />
+
+            </Form>
+            <br />
             <ButtonGroup>
                 <Button onClick={()=>setModalStep(1)}>Back</Button>
                 <Button primary>Publish Subscription</Button>
