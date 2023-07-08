@@ -20,7 +20,7 @@ export default function({plan, products}){
     const [editSellingPlanModalActive,setEditSellingPlanModalActive] = useState(false);
     const [deleteSellingPlanModalActive,setDeleteSellingPlanModalActive] = useState(false);
     const [modalStep,setModalStep] = useState(1);
-    const [selectedProducts,setSelectedProducts] = useState([]); 
+    const [selectedProducts,setSelectedProducts] = useState(plan.connectedProducts); 
 
     const options = [
         {label: 'Day', value: 'day'},
