@@ -138,7 +138,7 @@ router.post('/subscriptions/sellingplans', async (req, res) => {
 	try {
 
 		console.log('sellingPlan Data:', req.body);
-		await createSellingPlan(req.body);
+		await createSellingPlan({sellingPlanData: req.body, session: res.locals.shopify.session});
 
 		console.log('APP[SUCCESS] in /subscriptions/sellingplans [POST] handler');
 		res.status(200).send();
@@ -158,11 +158,11 @@ router.put('/subscriptions/sellingplans/:id', async (req, res) => {
 
 		// if(!thisSellingPlan) res.status(400).json({ data: error, success: false });
 
-		if(req.body.addedProducts.length) await attachSellingPlan({productIds: req.body.addedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId});
-		if(req.body.removedProducts.length) await detachSellingPlan({productIds: req.body.removedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId});
+		if(req.body.addedProducts.length) await attachSellingPlan({productIds: req.body.addedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId,session:res.locals.shopify.session});
+		if(req.body.removedProducts.length) await detachSellingPlan({productIds: req.body.removedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId,session:res.locals.shopify.session});
 
 		// WEBHOOK
-		// await updateSellingPlan(req.body);
+		// await updateSellingPlan({sellingPlanData:req.body,session:res.locals.shopify.session});
 
 		// thisSellingPlan.name = req.body.name;
 		// thisSellingPlan.billingInterval = req.body.billingInterval;
@@ -186,7 +186,7 @@ router.delete('/subscriptions/sellingplans/:id', async (req, res) => {
 
 		console.log('req.params.id:', req.params.id);
 
-		await deleteSellingPlan(req.body);
+		await deleteSellingPlan({sellingPlanData:req.body, session:res.locals.shopify.session});
 
 		// webhook takes care of it
 		// const thisSellingPlan = await SellingPlans.findByIdAndDelete(req.params.id);

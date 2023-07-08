@@ -8,92 +8,92 @@ import mongoose from 'mongoose';
 
 
 // get all subscriptions on the store
-export const getAllSubscriptions = async () => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+// export const getAllSubscriptions = async ({session}) => {
+//   // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
-  try{
-    console.log('APP[INFO] in getAllSubscriptions');
-    // create client with session
-    const client = new shopify.api.clients.Graphql({session});
-    // build query
-    let gqlQuery = (cursor) => `
-    {
-      subscriptionContracts (first:50) {
-        pageInfo{
-            hasNextPage
-        }
-        edges {
-            node {
-                id
-                customer {
-                    id
-                    firstName
-                    lastName
-                    email
-                }
-                status
-                createdAt
-                nextBillingDate
-                originOrder {
-                     id
-                     lineItems (first:10) { 
-                         edges {
-                             node {
-                                variant {
-                                    id
-                                    title
-                                    price
-                                }
-                                quantity
-                             }
-                         }
-                     }
-                }
-            }
-        }
-      }
-    }
-    `
+//   try{
+//     console.log('APP[INFO] in getAllSubscriptions');
+//     // create client with session
+//     const client = new shopify.api.clients.Graphql({session});
+//     // build query
+//     let gqlQuery = (cursor) => `
+//     {
+//       subscriptionContracts (first:50) {
+//         pageInfo{
+//             hasNextPage
+//         }
+//         edges {
+//             node {
+//                 id
+//                 customer {
+//                     id
+//                     firstName
+//                     lastName
+//                     email
+//                 }
+//                 status
+//                 createdAt
+//                 nextBillingDate
+//                 originOrder {
+//                      id
+//                      lineItems (first:10) { 
+//                          edges {
+//                              node {
+//                                 variant {
+//                                     id
+//                                     title
+//                                     price
+//                                 }
+//                                 quantity
+//                              }
+//                          }
+//                      }
+//                 }
+//             }
+//         }
+//       }
+//     }
+//     `
 
-    const allSubscriptions = [];
+//     const allSubscriptions = [];
 
-    // send gql query to Shopify
-    const pollSubscriptions = async (cursor=null) => {
+//     // send gql query to Shopify
+//     const pollSubscriptions = async (cursor=null) => {
 
-      console.log('running in pollSubscriptions');
+//       console.log('running in pollSubscriptions');
 
-      console.log('query:', gqlQuery(cursor));
+//       console.log('query:', gqlQuery(cursor));
 
-      const customerRes = await client.query({
-        data:{
-            "query":gqlQuery(cursor),
-        }
-      });
+//       const customerRes = await client.query({
+//         data:{
+//             "query":gqlQuery(cursor),
+//         }
+//       });
 
-      const theseSubscriptons = customerRes.body.data.subscriptionContracts;
+//       const theseSubscriptons = customerRes.body.data.subscriptionContracts;
 
-      console.log('theseSubscriptons:', theseSubscriptons);
+//       console.log('theseSubscriptons:', theseSubscriptons);
 
-      if(theseSubscriptons.pageInfo.hasNextPage) await pollSubscriptions(theseSubscriptons.pageInfo.endCursor);
-    }
+//       if(theseSubscriptons.pageInfo.hasNextPage) await pollSubscriptions(theseSubscriptons.pageInfo.endCursor);
+//     }
 
-    await pollSubscriptions();
+//     await pollSubscriptions();
 
-    console.log("APP[SUCCESS] in getAllSubscriptions");
-    return allSubscriptions;
-  }
-  catch(error){
-    console.log('APP[ERROR] in getAllSubscriptions:', error.response.errors);
-  }
+//     console.log("APP[SUCCESS] in getAllSubscriptions");
+//     return allSubscriptions;
+//   }
+//   catch(error){
+//     console.log('APP[ERROR] in getAllSubscriptions:', error.response.errors);
+//   }
 
-}
+// }
 
 
 // create a selling plan in shopify
 // export const createSellingPlan = async ({session, options}) => {
-export const createSellingPlan = async (sellingPlanData) => {
+export const createSellingPlan = async ({sellingPlanData, session}) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in createSellingPlan');
@@ -159,7 +159,7 @@ export const createSellingPlan = async (sellingPlanData) => {
 } 
 
 // delete a selling plan in shopify
-export const deleteSellingPlan = async (sellingPlanData) => {
+export const deleteSellingPlan = async ({sellingPlanData,session}) => {
 
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
   const {sellingPlanGroupId} = sellingPlanData;
@@ -203,7 +203,7 @@ export const deleteSellingPlan = async (sellingPlanData) => {
 } 
 
 // delete a selling plan in shopify
-export const updateSellingPlan = async (sellingPlanData) => {
+export const updateSellingPlan = async ({sellingPlanData,session}) => {
 
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
   const {sellingPlanGroupId} = sellingPlanData;
@@ -276,7 +276,7 @@ export const updateSellingPlan = async (sellingPlanData) => {
 } 
 
 // attach selling plan to a product in shopify
-export const attachSellingPlan = async ({productIds,sellingPlanGroupId}) => {
+export const attachSellingPlan = async ({productIds,sellingPlanGroupId, session}) => {
   
   // TEST DATA
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
@@ -321,7 +321,7 @@ export const attachSellingPlan = async ({productIds,sellingPlanGroupId}) => {
 }
 
 // remove selling plan from a product in shopify
-export const detachSellingPlan = async ({productIds,sellingPlanGroupId}) => {
+export const detachSellingPlan = async ({productIds,sellingPlanGroupId, session}) => {
   // TEST DATA
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
   // const planId = 'gid://shopify/SellingPlanGroup/1582268723';
@@ -358,11 +358,11 @@ export const detachSellingPlan = async ({productIds,sellingPlanGroupId}) => {
   }
   catch(error){
     console.log('APP[ERROR] removing product to selling plan:', error.response.errors);
-  }
+  } 
 }
 
 // create subscription with customer ID and product with selling plan
-export const createSubscription = async (subscriptionData) => {
+export const createSubscription = async ({subscriptionData,session}) => {
    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
    const customerId = "gid://shopify/Customer/"+subscriptionData.customer.id;
    const variantId = "gid://shopify/ProductVariant/"+subscriptionData.selectedProduct.id;
@@ -446,7 +446,7 @@ export const createSubscription = async (subscriptionData) => {
 }
 
 // delete subscription with subscription ID
-export const cancelSubscription = async (contractId) => {
+export const cancelSubscription = async ({contractId, session}) => {
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
@@ -560,7 +560,7 @@ export const cancelSubscription = async (contractId) => {
 
 }
 
-export const activateSubscription = async (contractId) => {
+export const activateSubscription = async ({contractId, session}) => {
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
@@ -670,7 +670,7 @@ export const activateSubscription = async (contractId) => {
 
 }
 
-export const editSubscription = async (subscriptionData) => {
+export const editSubscription = async ({subscriptionData, session}) => {
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
@@ -782,7 +782,7 @@ export const editSubscription = async (subscriptionData) => {
 
 
 
-export const listCustomerSubscriptions = async () => {
+export const listCustomerSubscriptions = async ({session}) => {
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
@@ -840,7 +840,7 @@ export const listCustomerSubscriptions = async () => {
 
 }
 
-export const manageCustomerTag = async () => {
+export const manageCustomerTag = async ({session}) => {
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
@@ -913,7 +913,7 @@ export const manageCustomerTag = async () => {
   }
 }
 
-export const subscriptionCreateWebhookHandler = async (subWebhookData) => {
+export const subscriptionCreateWebhookHandler = async ({subWebhookData}) => {
 
   const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
