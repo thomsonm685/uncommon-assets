@@ -92,7 +92,7 @@ export default {
       console.log('[APP INFO] /api/webhook (order/create) HIT')
       const payload = JSON.parse(body);
       console.log('ORDER/CREATE DATA:', payload);
-      await bundleOrderWebhookHandler(payload);
+      await bundleOrderWebhookHandler(payload, shop);
     },
   },
   SUBSCRIPTION_CONTRACTS_CREATE: {
@@ -102,7 +102,7 @@ export default {
       console.log('[APP INFO] /api/webhook (subscription/create) HIT')
       const payload = JSON.parse(body);
       console.log('SUBSCRIPTION/CREATE DATA:', payload);
-      await subscriptionCreateWebhookHandler(payload);
+      await subscriptionCreateWebhookHandler(payload, shop);
     },
   },
   SUBSCRIPTION_CONTRACTS_UPDATE: {
@@ -112,7 +112,7 @@ export default {
       console.log('[APP INFO] /api/webhook (subscription/update) HIT')
       const payload = JSON.parse(body);
       console.log('SUBSCRIPTION/UPDATE DATA:', payload);
-      await subscriptionUpdateWebhookHandler(payload);
+      await subscriptionUpdateWebhookHandler(payload, shop);
     },
   },
   SELLING_PLAN_GROUPS_UPDATE: {
@@ -122,7 +122,7 @@ export default {
       console.log('[APP INFO] /api/webhook SELLING_PLAN_GROUPS_UPDATE HIT')
       const payload = JSON.parse(body);
       console.log('SELLING_PLAN_GROUPS_UPDATE DATA:', payload);
-      await sellingPlanGroupUpdateWebhookHandler(payload);
+      await sellingPlanGroupUpdateWebhookHandler(payload, shop);
     },
   },
   SELLING_PLAN_GROUPS_CREATE: {
@@ -132,7 +132,7 @@ export default {
       console.log('[APP INFO] /api/webhook SELLING_PLAN_GROUPS_CREATE HIT')
       const payload = JSON.parse(body);
       console.log('SELLING_PLAN_GROUPS_CREATE DATA:', payload);
-      await sellingPlanGroupCreateWebhookHandler(payload);
+      await sellingPlanGroupCreateWebhookHandler(payload, shop);
     },
   },
   SELLING_PLAN_GROUPS_DELETE: {
@@ -142,7 +142,7 @@ export default {
       console.log('[APP INFO] /api/webhook SELLING_PLAN_GROUPS_DELETE) HIT')
       const payload = JSON.parse(body);
       console.log('SELLING_PLAN_GROUPS_DELETE DATA:', payload);
-      await sellingPlanGroupDeleteWebhookHandler(payload);
+      await sellingPlanGroupDeleteWebhookHandler(payload, shop);
     },
   }
 };

@@ -5,8 +5,8 @@ import mongoose from 'mongoose';
 import Bundle from '../db/mongo/models/Bundle.js';
 import keysToCamel from '../helpers/keysToCamel.js';
 
-export const createBundle = async ({ title, masterVariantId, bundleProducts, aggregateInventory }) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+export const createBundle = async ({ title, masterVariantId, bundleProducts, aggregateInventory, session }) => {
+  // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in createBundle');
@@ -51,8 +51,8 @@ export const createBundle = async ({ title, masterVariantId, bundleProducts, agg
   return
 }
 
-export const deleteBundle = async ({masterVariantId}) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+export const deleteBundle = async ({masterVariantId, session}) => {
+  // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in deleteBundle');
@@ -70,8 +70,8 @@ export const deleteBundle = async ({masterVariantId}) => {
   return
 }
 
-export const updateBundle = async ({ title, bundleProducts, aggregateInventory, masterVariantId }) => {
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+export const updateBundle = async ({ title, bundleProducts, aggregateInventory, masterVariantId, session }) => {
+  // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in updateBundle');
@@ -98,8 +98,8 @@ export const updateBundle = async ({ title, bundleProducts, aggregateInventory, 
 }
 
 
-export const createBundleDraftOrder = async (thisBundle, orderData) => {
-    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+export const createBundleDraftOrder = async ({thisBundle, orderData, session}) => {
+    // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
     try{
       // MAY NEED TO ADD INVENTORY POLICY
@@ -204,9 +204,9 @@ export const createBundleDraftOrder = async (thisBundle, orderData) => {
     return
 }
 
-export const publishBundleDraftOrder = async (draftOrderId) => {
+export const publishBundleDraftOrder = async ({draftOrderId, session}) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in publishBundleDraftOrder');
@@ -235,9 +235,9 @@ export const publishBundleDraftOrder = async (draftOrderId) => {
   return
 }
 
-export const adjustBundleInventory = async (thisBundle) => {
+export const adjustBundleInventory = async ({thisBundle, session}) => {
 
-  const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+  // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
 
   try{
     console.log('APP[INFO] in adjustBundleInventory');
@@ -318,7 +318,7 @@ export const adjustBundleInventory = async (thisBundle) => {
 
 
 // to handle the order webhook, check for bundles, and create the orders if needed
-export const bundleOrderWebhookHandler = async (order) => {
+export const bundleOrderWebhookHandler = async (order,shop) => {
   try{
     console.log('APP[INFO] in bundleOrderWebhookHandler');
     // GET ALL BUNDLES

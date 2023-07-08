@@ -1,4 +1,4 @@
-import { Filters, ResourceItem, ResourceList, Scrollable } from "@shopify/polaris";
+import { Filters, ResourceItem, ResourceList, Scrollable, Spinner } from "@shopify/polaris";
 import ProductSearchItem from "./ProductSearchItem";
 import { useEffect, useState, useCallback} from "react";
 import SellingPlanProductSearchItem from "./SellingPlanProductSearchItem";

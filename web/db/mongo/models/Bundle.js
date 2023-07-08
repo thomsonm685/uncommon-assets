@@ -7,6 +7,11 @@ const BundleSchema = new Schema({
         type: String,
         required: true
     },
+    shop: {
+        type: String,
+        required: true,
+        default: null
+    },
     masterVariantId: {
         type: Number,
         required: true

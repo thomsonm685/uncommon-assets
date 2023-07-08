@@ -3,6 +3,11 @@ const Schema = mongoose.Schema;
 
 // Schema For The Design Resource
 const SubscriptionSchema = new Schema({
+    shop: {
+        type: String,
+        required: true,
+        default: null
+    },
     customer: {
         type: Object,
         required: true

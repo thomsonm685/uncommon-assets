@@ -4,7 +4,8 @@ import express from 'express';
 const router = express.Router();
 import Subscriptions from '../../db/mongo/models/Subscription.js';
 import SellingPlans from '../../db/mongo/models/SellingPlan.js';
-import { activateSubscription, attachSellingPlan, cancelSubscription, createSellingPlan, createSubscription, deleteSellingPlan, detachSellingPlan, editSubscription, getAllSubscriptions, updateSellingPlan } from '../../controllers/subscriptions.js';
+import Tiers from '../../db/mongo/models/Tier.js';
+import { activateSubscription, attachSellingPlan, cancelSubscription, createSellingPlan, createSubscription, deleteSellingPlan, detachSellingPlan, editSubscription, updateSellingPlan } from '../../controllers/subscriptions.js';
 
 // RETURNS LIST OF ALL SUBSCRIPTIONS
 router.get('/subscriptions', async (req, res) => {
@@ -91,8 +92,8 @@ router.put('/subscriptions', async (req, res) => {
 		const updates = req.body.updates;
 
 		if(!updates.status) await editSubscription(req.body.contractId);
-		if(updates?.status === "ACTIVE") await activateSubscription(req.body.contractId);
-		if(updates?.status === "CANCELLED") await cancelSubscription(req.body.contractId);
+		if(updates?.status === "ACTIVE") await activateSubscription({contractId:req.body.contractId, session:res.locals.shopify.session});
+		if(updates?.status === "CANCELLED") await cancelSubscription({contractId:req.body.contractId,session:res.locals.shopify.session});
 
 		console.log('APP[SUCCESS] in  /subscriptions [UPDATE] handler');
 		res.status(200).send();
@@ -108,7 +109,7 @@ router.post('/subscriptions', async (req, res) => {
 	try {
 
 		console.log('newSubData:', req.body.subscription);
-		await createSubscription(req.body.subscription);
+		await createSubscription({subscriptionData:req.body.subscription, session:res.locals.shopify.session});
 
 		console.log('APP[SUCCESS] in /subscriptions [POST] handler');
 		res.status(200).send();
@@ -132,6 +133,21 @@ router.get('/subscriptions/sellingplans', async (req, res) => {
 	}
 });
 
+// RETURNS LIST OF ALL TIERS
+router.get('/subscriptions/tiers', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/tiers [GET] hit');
+	try {
+		console.log('APP[SUCCESS] in /subscriptions/tiers [GET] handler');
+		const allTiers = await Tiers.find({shop: res.locals.shopify.session.shop});
+
+		res.status(200).json({ data: {tiers:allTiers}, success: true });
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/sellingplans [GET] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
+
 // CREATES SINGLE SELLING PLAN
 router.post('/subscriptions/sellingplans', async (req, res) => {
 	console.log('APP[INFO] /subscriptions/sellingplans [POST] hit');
@@ -144,6 +160,30 @@ router.post('/subscriptions/sellingplans', async (req, res) => {
 		res.status(200).send();
 	} catch (error) {
 		console.log('APP[ERROR] in /subscriptions/sellingplans [POST] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
+
+// CREATES SINGLE TIER
+router.post('/subscriptions/tiers', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/tiers [POST] hit');
+	try {
+
+		console.log('tier Data:', req.body);
+		// await createTier({tierData: req.body, session: res.locals.shopify.session});
+		const newTier = new Tiers({
+			name: req.body.name,
+			url: req.body.url,
+			shop: res.locals.shopify.session.shop
+		});
+
+		await newTier.save();
+
+		console.log('APP[SUCCESS] in /subscriptions/tiers [POST] handler');
+		res.status(200).send();
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/tiers [POST] handler:', error);
 		res.status(400).json({ data: error, success: false });
 	}
 });
@@ -179,6 +219,30 @@ router.put('/subscriptions/sellingplans/:id', async (req, res) => {
 	}
 });
 
+
+// UPDATES SINGLE TIER
+router.put('/subscriptions/tiers/:id', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/tiers [PUT] hit');
+	try {
+
+		console.log('tiers Data:', req.body);
+
+		const thisTier = await Tiers.findById(req.params.id);
+
+		thisTier.name = req.body.name;
+		thisTier.url = req.body.url;
+		thisTier.connectedProducts = req.body.connectedProducts;
+
+		await thisTier.save();
+
+		console.log('APP[SUCCESS] in /subscriptions/tiers [PUT] handler');
+		res.status(200).send();
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/tiers [PUT] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
 // UPDATES SINGLE SELLING PLAN
 router.delete('/subscriptions/sellingplans/:id', async (req, res) => {
 	console.log('APP[INFO] /subscriptions/sellingplans [DELETE] hit');
@@ -199,6 +263,22 @@ router.delete('/subscriptions/sellingplans/:id', async (req, res) => {
 	}
 });
 
+// UPDATES SINGLE TIER
+router.delete('/subscriptions/tiers/:id', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/tiers [DELETE] hit');
+	try {
+
+		console.log('req.params.id:', req.params.id);
+
+		await Tiers.findByIdAndDelete(req.params.id);
+
+		console.log('APP[SUCCESS] in /subscriptions/tiers [DELETE] handler');
+		res.status(200).send();
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/tiers [DELETE] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
 
 
 // // RETURNS CUSTOMER OBJECT AND ATTACHED SUBSCRIPTIONS

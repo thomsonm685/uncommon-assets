@@ -7,6 +7,11 @@ const SellingPlanSchema = new Schema({
         type: String,
         required: true
     },
+    shop: {
+        type: String,
+        required: true,
+        default: null
+    },
     // sellingPlanId: {
     //     type: String,
     //     required: true
@@ -35,6 +40,10 @@ const SellingPlanSchema = new Schema({
         type: Array,
         required: true,
         default:[]
+    },
+    createdAt: {
+        type : Date, 
+        default: Date.now 
     },
 });
 

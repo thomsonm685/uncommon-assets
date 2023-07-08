@@ -8,7 +8,8 @@ import mongoose from 'mongoose';
 
 // SINGLE ROUTE TO RETURN STORE CUSTOMER
 router.get('/customers/:id', async (req, res) => {
-    const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+    // const session = {accessToken:'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', shop:'e41660.myshopify.com'};
+    const session = res.locals.shopify.session;
 
     try{
         console.log('APP[INFO] /customer:id [GET] hit');
