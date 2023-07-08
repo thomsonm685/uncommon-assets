@@ -4,29 +4,21 @@ import { useState } from "react";
 import SubscriptionItem from "./SubscriptionItem";
 import MyModal from "../../MyModal";
 
-export default function({product, selectedProducts, setSelectedProducts,setSelectedProduct, selectedProduct, setPrice}){
+export default function({product, selectedProducts, setSelectedProducts}){
 
     console.log('product:', product);
 
-    const incrementProduct = (i) => {
-
-        if(selectedProducts.filter(p=>p.id===product.id)[0]){
-            let productsCopy = [...selectedProducts];
-            productsCopy.filter(p=>p.id===product.id)[0].qty += i;
-            if(productsCopy.filter(p=>p.id===product.id)[0].qty<1) productsCopy = productsCopy.filter(p=>p.id!==product.id);
+    const toggleProduct = () => {
+        if(selectedProducts.filter(pid=>pid===product.id)[0]){
+            let productsCopy = [...selectedProducts].filter(pid=>pid!==product.id);
             setSelectedProducts(productsCopy);
         }
-        else if(i>0){
+        else{
             let productsCopy = [...selectedProducts];
-            productsCopy.push({id:product.id, qty: 1})
+            productsCopy.push(product.id);
             setSelectedProducts(productsCopy);
         }
         return
-    }
-
-    const changeProduct = () => {
-        setSelectedProduct(product);
-        setPrice(parseInt(product.price));
     }
 
     return(
@@ -37,7 +29,7 @@ export default function({product, selectedProducts, setSelectedProducts,setSelec
                         <h3 style={{width:'33%'}}><b>{product.title}</b></h3>
                         <h3 style={{width:'33%'}}>{product.id}</h3>
                         <div style={{width:'33%', display:'flex', justifyContent:'center'}}>
-                            <img  src={product.image} style={{maxWidth:'60%'}}/>
+                            <img  src={product?.image?.src} style={{maxWidth:'60%'}}/>
                         </div>
                     </div>
                 </div>
@@ -46,9 +38,9 @@ export default function({product, selectedProducts, setSelectedProducts,setSelec
                             {/* <Button  onClick={()=>incrementProduct(-1)}>-</Button>
                             <h2><b>{selectedProducts.filter(p=>p.id===product.id)[0]?.qty || 0}</b></h2>
                             <Button  onClick={()=>incrementProduct(1)}>+</Button> */}
-                            {selectedProduct?.id===product.id?
-                            <Button destructive onClick={()=>setSelectedProduct(null)}>De-Select</Button>
-                            :<Button onClick={changeProduct} disabled={selectedProduct}>Select</Button>
+                            {selectedProducts.filter(pid=>pid===product.id)[0]?
+                            <Button destructive onClick={toggleProduct}>De-Select</Button>
+                            :<Button onClick={toggleProduct}>Select</Button>
                             }
                             {/* <Button onClick={()=>setSelectedProduct(product)}>Select</Button> */}
                         </ButtonGroup>

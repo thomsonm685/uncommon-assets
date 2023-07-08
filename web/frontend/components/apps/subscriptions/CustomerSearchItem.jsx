@@ -1,5 +1,5 @@
 
-import { TextStyle, Icon, Button, ButtonGroup, Stack, Collapsible, Modal, DisplayText, Form, Text, TextField, DatePicker, Select } from "@shopify/polaris";
+import { TextStyle, Icon, Button, ButtonGroup, Stack, Collapsible, Modal, DisplayText, Form, Text, TextField, DatePicker, Select, Spinner } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import SubscriptionItem from "./SubscriptionItem";
 import MyModal from "../../MyModal";
@@ -16,24 +16,24 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
     const [modalStep,setModalStep] = useState(1);
     const [selectedProducts,setSelectedProducts] = useState([]); // {id:123, qty: 1}
     const [selectedProduct,setSelectedProduct] = useState(null); // {id:123, qty: 1}
-    const [chargeInterval,setChargeInterval] = useState(null);
-    const [chargeIntervalCount,setChargeIntervalCount] = useState(null);
-    const [deliveryInterval,setDeliveryInterval] = useState(null);
-    const [deliveryIntervalCount,setDeliveryIntervalCount] = useState(null);
+    const [chargeInterval,setChargeInterval] = useState('month');
+    const [chargeIntervalCount,setChargeIntervalCount] = useState(1);
+    const [deliveryInterval,setDeliveryInterval] = useState('month');
+    const [deliveryIntervalCount,setDeliveryIntervalCount] = useState(1);
     const [price,setPrice] = useState(null);
     // const [nextCharge,setNextCharge] = useState(null);
     const [paymentMethodId,setPaymentMethodId] = useState(null);
     const [addressId,setAddressId] = useState(null);
     const [extraCustomerDetails,setExtraCustomerDetails] = useState(null);
 
-    
-
     const {id, firstName, lastName} = customer;
 
     const [{month, year}, setDate] = useState({month: new Date().getMonth(), year: new Date().getFullYear()});
     const [selectedDates, setSelectedDates] = useState({
-      start: new Date(),
-      end: new Date(),
+    //   start: new Date().setDate(new Date().getDate() + 1),
+    //   end: new Date().setDate(new Date().getDate() + 1),
+    start: new Date(),
+    end: new Date(),
     });
   
     const handleMonthChange = useCallback(
@@ -58,14 +58,13 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
                     price, 
                     selectedProduct,
                     customer,
-                    nextBillingDate,
+                    nextBillingDate: selectedDates.start.toISOString().split('T')[0],
                     deliveryInterval,
                     deliveryIntervalCount,
                     chargeInterval,
                     chargeIntervalCount, 
                     paymentMethodId,
-                    addressId,
-                    // ALSO DATE
+                    address: extraCustomerDetails.addresses.filter(a=>a.id===addressId)[0],
                 }
             })
         });
@@ -76,7 +75,7 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
             setStatus('error');
         }        
         // loadIntial();
-        setTestState(!testState);
+        // setTestState(!testState);
         return
     }
 
@@ -115,9 +114,10 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
             <DisplayText>
                 <b>Select Product</b>
             </DisplayText>
-            <SelectProducts selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts} products={products}></SelectProducts>
+            <SelectProducts setPrice={setPrice} selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts} products={products}></SelectProducts>
             <Button disabled={!selectedProduct} onClick={()=>setModalStep(2)}>Next</Button>
             </>
+            :!extraCustomerDetails?<Spinner/>
             :
             <>
             <DisplayText>
@@ -159,6 +159,18 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
                     autoComplete="off"
                     type="number"
                 /> 
+                <b>Address</b>
+                <Select
+                    options={extraCustomerDetails.addresses.map(a=>({label:`${a.address1}, ${a.city} ${a.provinceCode}`,value:a.id}))}
+                    onChange={setAddressId}
+                    value={addressId}
+                />
+                <b>Payment Method</b>
+                <Select
+                    options={extraCustomerDetails.paymentMethods.map(pm=>({label:`${pm.brand}, ${pm.lastDigits}`,value:pm.id}))}
+                    onChange={setPaymentMethodId}
+                    value={paymentMethodId}
+                />
                 <b>Subscription Start Date</b>
                 <DatePicker
                     month={month}
@@ -167,13 +179,14 @@ export default function({customer, selectedCustomer, setSelectedCustomer, loadIn
                     onMonthChange={handleMonthChange}
                     selected={selectedDates}
                     allowRange={false}
+                    disableDatesBefore={new Date()}
                 />
 
             </Form>
             <br />
             <ButtonGroup>
                 <Button onClick={()=>setModalStep(1)}>Back</Button>
-                <Button primary>Publish Subscription</Button>
+                <Button primary onClick={createSubscription}>Publish Subscription</Button>
             </ButtonGroup>
             </>
             }

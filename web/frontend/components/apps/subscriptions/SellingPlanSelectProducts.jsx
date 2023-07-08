@@ -1,31 +1,12 @@
 import { Filters, ResourceItem, ResourceList, Scrollable } from "@shopify/polaris";
 import ProductSearchItem from "./ProductSearchItem";
 import { useEffect, useState, useCallback} from "react";
+import SellingPlanProductSearchItem from "./SellingPlanProductSearchItem";
 
 
-const SelectProducts =  ({products, selectedProducts, setSelectedProducts,setSelectedProduct, selectedProduct, setPrice}) => {
+const SellingPlanSelectProducts =  ({products, selectedProducts, setSelectedProducts}) => {
 
     const [queryValue, setQueryValue] = useState("");
-    const [variantProducts, setVariantProducts] = useState([]);
-
-    useEffect(()=>{
-        const tempVariantProducts = [];
-        console.log('products:', products);
-        products.forEach(p=>{
-            if(p.variants){
-                p.variants.forEach(v=>{
-                    const img = p.images.filter(image=>image.variant_ids.includes(v.id))[0]?.src;
-                    const updatedV = {...v, image:img};
-                    console.log('img:', img);
-                    tempVariantProducts.push(updatedV);
-                })
-            }
-            else tempVariantProducts.push(p)
-        });
-        console.log('tempVariantProducts:', tempVariantProducts);
-        setVariantProducts(tempVariantProducts);
-    }, []);
-
 
     const handleQueryValueRemove = useCallback(() => {
         setQueryValue("");
@@ -63,7 +44,7 @@ const SelectProducts =  ({products, selectedProducts, setSelectedProducts,setSel
         return (
         <div class="productSearchItem" data-name={`${product.title} ${product.id}`} style={{borderBottom:'1px solid #e1e3e5'}}>
             <ResourceItem id={product.id}>       
-                <ProductSearchItem setPrice={setPrice} selectedProduct={selectedProduct} product={product} setSelectedProduct={setSelectedProduct} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts}></ProductSearchItem>      
+                <SellingPlanProductSearchItem product={product} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts}></SellingPlanProductSearchItem>      
             </ResourceItem>
         </div>
         );
@@ -80,7 +61,7 @@ const SelectProducts =  ({products, selectedProducts, setSelectedProducts,setSel
                 </div>:
                 <ResourceList 
                 resourceName={resourceName}
-                items={variantProducts}
+                items={products}
                 renderItem={renderItem}
                 filterControl={filterControl}
                 />
@@ -90,4 +71,4 @@ const SelectProducts =  ({products, selectedProducts, setSelectedProducts,setSel
     )
 }
 
-export default SelectProducts;
+export default SellingPlanSelectProducts;

@@ -3,7 +3,8 @@
 import express from 'express';
 const router = express.Router();
 import Subscriptions from '../../db/mongo/models/Subscription.js';
-import { activateSubscription, cancelSubscription, getAllSubscriptions } from '../../controllers/subscriptions.js';
+import SellingPlans from '../../db/mongo/models/SellingPlan.js';
+import { activateSubscription, attachSellingPlan, cancelSubscription, createSellingPlan, createSubscription, deleteSellingPlan, detachSellingPlan, editSubscription, getAllSubscriptions, updateSellingPlan } from '../../controllers/subscriptions.js';
 
 // RETURNS LIST OF ALL SUBSCRIPTIONS
 router.get('/subscriptions', async (req, res) => {
@@ -22,9 +23,10 @@ router.get('/subscriptions', async (req, res) => {
 	}
 });
 
+
 // // CREATE A SINGLE SUBSCRIPTIONS
 // router.post('/', async (req, res) => {
-// 	console.log('APP[INFO] /subscriptions [POST] hit');
+// 	console.log('APP[INFO] /subscriptions [POST] hit'); 
 // 	try {
 // 		console.log('APP[SUCCESS] in /subscriptions [POST] handler');
 // 		res.status(200).json({ data: {deliveries,pickups}, success: true });
@@ -83,18 +85,19 @@ router.get('/subscriptions', async (req, res) => {
 
 // UPDATES SINGLE SUBSCRIPTION
 router.put('/subscriptions', async (req, res) => {
-	console.log('APP[INFO] /subscriptions/:id [DELETE] hit');
+	console.log('APP[INFO] /subscriptions [UPDATE] hit');
 	try {
 
 		const updates = req.body.updates;
 
+		if(!updates.status) await editSubscription(req.body.contractId);
 		if(updates?.status === "ACTIVE") await activateSubscription(req.body.contractId);
 		if(updates?.status === "CANCELLED") await cancelSubscription(req.body.contractId);
 
-		console.log('APP[SUCCESS] in /subscriptions/:id [DELETE] handler');
+		console.log('APP[SUCCESS] in  /subscriptions [UPDATE] handler');
 		res.status(200).send();
 	} catch (error) {
-		console.log('APP[ERROR] in /subscriptions/:id [DELETE] handler:', error);
+		console.log('APP[ERROR] in  /subscriptions [UPDATE] handler:', error);
 		res.status(400).json({ data: error, success: false });
 	}
 });
@@ -104,7 +107,8 @@ router.post('/subscriptions', async (req, res) => {
 	console.log('APP[INFO] /subscriptions [POST] hit');
 	try {
 
-		const newSubData = req.body.subscription;
+		console.log('newSubData:', req.body.subscription);
+		await createSubscription(req.body.subscription);
 
 		console.log('APP[SUCCESS] in /subscriptions [POST] handler');
 		res.status(200).send();
@@ -113,6 +117,88 @@ router.post('/subscriptions', async (req, res) => {
 		res.status(400).json({ data: error, success: false });
 	}
 });
+
+// RETURNS LIST OF ALL SELLING PLANS
+router.get('/subscriptions/sellingplans', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/sellingplans [GET] hit');
+	try {
+		console.log('APP[SUCCESS] in /subscriptions/sellingplans [GET] handler');
+		const allSellingPlans = await SellingPlans.find({});
+
+		res.status(200).json({ data: {sellingPlans:allSellingPlans}, success: true });
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/sellingplans [GET] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
+// CREATES SINGLE SELLING PLAN
+router.post('/subscriptions/sellingplans', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/sellingplans [POST] hit');
+	try {
+
+		console.log('sellingPlan Data:', req.body);
+		await createSellingPlan(req.body);
+
+		console.log('APP[SUCCESS] in /subscriptions/sellingplans [POST] handler');
+		res.status(200).send();
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/sellingplans [POST] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
+// UPDATES SINGLE SELLING PLAN
+router.put('/subscriptions/sellingplans/:id', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/sellingplans [PUT] hit');
+	try {
+
+		console.log('sellingPlan Data:', req.body);
+		// const thisSellingPlan = await SellingPlans.findById(req.body.id);
+
+		// if(!thisSellingPlan) res.status(400).json({ data: error, success: false });
+
+		if(req.body.addedProducts.length) await attachSellingPlan({productIds: req.body.addedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId});
+		if(req.body.removedProducts.length) await detachSellingPlan({productIds: req.body.removedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId});
+
+		// WEBHOOK
+		// await updateSellingPlan(req.body);
+
+		// thisSellingPlan.name = req.body.name;
+		// thisSellingPlan.billingInterval = req.body.billingInterval;
+		// thisSellingPlan.billingIntervalCount = req.body.billingIntervalCount;
+		// thisSellingPlan.deliveryInterval = req.body.deliveryInterval;
+		// thisSellingPlan.deliveryIntervalCount = req.body.deliveryIntervalCount;
+		// thisSellingPlan.connectedProducts = req.body.connectedProducts;
+
+		console.log('APP[SUCCESS] in /subscriptions/sellingplans [PUT] handler');
+		res.status(200).send();
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/sellingplans [PUT] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
+// UPDATES SINGLE SELLING PLAN
+router.delete('/subscriptions/sellingplans/:id', async (req, res) => {
+	console.log('APP[INFO] /subscriptions/sellingplans [DELETE] hit');
+	try {
+
+		console.log('req.params.id:', req.params.id);
+
+		await deleteSellingPlan(req.body);
+
+		// webhook takes care of it
+		// const thisSellingPlan = await SellingPlans.findByIdAndDelete(req.params.id);
+
+		console.log('APP[SUCCESS] in /subscriptions/sellingplans [DELETE] handler');
+		res.status(200).send();
+	} catch (error) {
+		console.log('APP[ERROR] in /subscriptions/sellingplans [DELETE] handler:', error);
+		res.status(400).json({ data: error, success: false });
+	}
+});
+
 
 
 // // RETURNS CUSTOMER OBJECT AND ATTACHED SUBSCRIPTIONS

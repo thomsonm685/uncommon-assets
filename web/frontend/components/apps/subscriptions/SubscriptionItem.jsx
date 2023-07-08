@@ -7,6 +7,8 @@ import { useAuthenticatedFetch } from "../../../hooks";
 
 export default function({subscription, loadIntial}){
 
+    console.log('subscriuption:', subscription);
+
     const fetch = useAuthenticatedFetch();
 
     const [editModalActive, setEditModalActive] = useState(false);
@@ -14,6 +16,75 @@ export default function({subscription, loadIntial}){
     const [activateModalActive, setActivateModalActive] = useState(false);
     const [status,setStatus] = useState(null);
     const [testState,setTestState] = useState(false);
+
+    // const [chargeInterval,setChargeInterval] = useState('month');
+    // const [chargeIntervalCount,setChargeIntervalCount] = useState(1);
+    // const [deliveryInterval,setDeliveryInterval] = useState('month');
+    // const [deliveryIntervalCount,setDeliveryIntervalCount] = useState(1);
+    // // const [price,setPrice] = useState(null);
+    // // const [nextCharge,setNextCharge] = useState(null);
+    // const [paymentMethodId,setPaymentMethodId] = useState(null);
+    // const [addressId,setAddressId] = useState(null);
+    // const [extraCustomerDetails,setExtraCustomerDetails] = useState(null);
+
+    // const {id, firstName, lastName} = customer;
+
+    // const [{month, year}, setDate] = useState({month: new Date().getMonth(), year: new Date().getFullYear()});
+    // const [selectedDates, setSelectedDates] = useState({
+    //     //   start: new Date().setDate(new Date().getDate() + 1),
+    //     //   end: new Date().setDate(new Date().getDate() + 1),
+    //     start: new Date(subscription.nextBillingDate),
+    //     end: new Date(subscription.nextBillingDate),
+    // });
+  
+    // const handleMonthChange = useCallback(
+    //   (month,year) => setDate({month, year}),
+    //   [],
+    // );
+
+    // const intervalOptions = [
+    //     {label: 'Month', value: 'month'},
+    //     {label: 'Day', value: 'day'}
+    // ];
+    
+    // const updateSubscription = async() => {
+    //     setStatus('loading');
+    //     const updateSubscriptionRes = await fetch('/api/subscriptions', {
+    //         method: 'POST',
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify({
+    //             subscription: {
+    //                 customer:subscription.customer,
+    //                 nextBillingDate: selectedDates.start.toISOString().split('T')[0],
+    //                 deliveryInterval,
+    //                 deliveryIntervalCount,
+    //                 chargeInterval,
+    //                 chargeIntervalCount, 
+    //                 paymentMethodId,
+    //                 address: extraCustomerDetails.addresses.filter(a=>a.id===addressId)[0],
+    //                 contractId: subscription.contractId
+    //             }
+    //         })
+    //     });
+    //     if(updateSubscriptionRes.status === 200){
+    //         setStatus('success');
+    //     }
+    //     else{
+    //         setStatus('error');
+    //     }        
+    //     return
+    // }
+
+    // const getCustomerSpecific = async () => {
+    //     const customerRes = await (await fetch('/api/customers/'+customer.id)).json();
+    //     console.log('customerRes:', customerRes.data.customer);
+    //     setExtraCustomerDetails(customerRes.data.customer);
+    // }
+
+
+
 
     useEffect(()=>{
         return
@@ -32,6 +103,10 @@ export default function({subscription, loadIntial}){
     const toggleEditModal = () => {
         setStatus(null);
         setEditModalActive(!editModalActive);
+        setModalStep(1);
+        setSelectedProducts([]);
+        setSelectedProduct(null);
+        getCustomerSpecific();
     }
 
     const editSubscription = () => {
@@ -95,7 +170,87 @@ export default function({subscription, loadIntial}){
     const EditSubModalContent = () => {  
         return(
             <>
-            {
+            {status?<StatusContent/>:
+            modalStep<2?
+            <>
+            <DisplayText>
+                <b>Select Product</b>
+            </DisplayText>
+            <SelectProducts setPrice={setPrice} selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} selectedProducts={selectedProducts} setSelectedProducts={setSelectedProducts} products={products}></SelectProducts>
+            <Button disabled={!selectedProduct} onClick={()=>setModalStep(2)}>Next</Button>
+            </>
+            :!extraCustomerDetails?<Spinner/>
+            :
+            <>
+            <DisplayText>
+                <b>Subscription Options</b>
+            </DisplayText>
+            <Form>
+                <b>Price</b>
+                <TextField
+                    value={price}
+                    onChange={setPrice}
+                    autoComplete="off"
+                    type="number"
+                /> 
+                <b>Delivery Interval</b>
+                <Select
+                    label="Interval Unit"
+                    options={intervalOptions}
+                    onChange={setDeliveryInterval}
+                    value={deliveryInterval}
+                />
+                <TextField
+                    label="Inverval Count"
+                    value={deliveryIntervalCount}
+                    onChange={setDeliveryIntervalCount}
+                    autoComplete="off"
+                    type="number"
+                /> 
+                <b>Order Interval</b>
+                <Select
+                    label="Interval Unit"
+                    options={intervalOptions}
+                    onChange={setChargeInterval}
+                    value={chargeInterval}
+                />
+                <TextField
+                    label="Inverval Count"
+                    value={chargeIntervalCount}
+                    onChange={setChargeIntervalCount}
+                    autoComplete="off"
+                    type="number"
+                /> 
+                <b>Address</b>
+                <Select
+                    options={extraCustomerDetails.addresses.map(a=>({label:`${a.address1}, ${a.city} ${a.provinceCode}`,value:a.id}))}
+                    onChange={setAddressId}
+                    value={addressId}
+                />
+                <b>Payment Method</b>
+                <Select
+                    options={extraCustomerDetails.paymentMethods.map(pm=>({label:`${pm.brand}, ${pm.lastDigits}`,value:pm.id}))}
+                    onChange={setPaymentMethodId}
+                    value={paymentMethodId}
+                />
+                <b>Subscription Start Date</b>
+                <DatePicker
+                    month={month}
+                    year={year}
+                    onChange={setSelectedDates}
+                    onMonthChange={handleMonthChange}
+                    selected={selectedDates}
+                    allowRange={false}
+                    disableDatesBefore={new Date()}
+                />
+
+            </Form>
+            <br />
+            <ButtonGroup>
+                <Button onClick={()=>setModalStep(1)}>Back</Button>
+                <Button primary onClick={createSubscription}>Publish Subscription</Button>
+            </ButtonGroup>
+            </>
             }
             </>
         )
@@ -147,7 +302,7 @@ export default function({subscription, loadIntial}){
                 </Stack>
             </div>
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexDirection:'row'}}>
-                <Button onClick={toggleEditModal}>Edit</Button>
+                {/* <Button onClick={toggleEditModal}>Edit</Button> */}
                 <div style={{width:'20px'}}></div>
                 {subscription.status==="ACTIVE"?
                 <Button  destructive onClick={toggleCancelModal}>Cancel</Button>
