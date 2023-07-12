@@ -7,6 +7,7 @@ export default function({product, masterProduct=false}){
     const [qty,setQty] = useState(null)
 
     return(
+        <>
     <div style={{padding:'10px'}} >
         {!product?'':
         <>
@@ -15,7 +16,7 @@ export default function({product, masterProduct=false}){
         </>
         }
         <Stack>
-            <Button>Select Product</Button>
+            <Button onClick={}>Select Product</Button>
             <Button destructive>Remove Product</Button>
             {!masterProduct?
             <div style={{width:'50px', marginTop:'-23px'}}>
@@ -31,5 +32,6 @@ export default function({product, masterProduct=false}){
             :''}
         </Stack>
     </div>
+    </>
     )
 }

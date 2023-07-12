@@ -318,6 +318,7 @@ export const attachSellingPlan = async ({productIds,sellingPlanGroupId, session}
 
   try{
     console.log('APP[INFO] in attachSellingPlan');
+    const thisSellingPlan = await SellingPlan.findOne({sellingPlanGroupId});
     // create client with session
     const client = new shopify.api.clients.Graphql({session});
     // build query
@@ -346,10 +347,13 @@ export const attachSellingPlan = async ({productIds,sellingPlanGroupId, session}
       }
     });
 
+    productIds.forEach(pid => thisSellingPlan.connectedProducts.push(pid));
+
     console.log("APP[SUCCESS] adding product to selling plan:", queryRes.body.data.sellingPlanGroupAddProducts.userErrors);
+    await thisSellingPlan.save();
   }
   catch(error){
-    console.log('APP[ERROR] adding product to selling plan:', error.response.errors);
+    console.log('APP[ERROR] adding product to selling plan:', error);
   }
 }
 
@@ -364,6 +368,7 @@ export const detachSellingPlan = async ({productIds,sellingPlanGroupId, session}
     console.log('APP[INFO] in detachSellingPlan');
     // create client with session
     const client = new shopify.api.clients.Graphql({session});
+    const thisSellingPlan = await SellingPlan.findOne({sellingPlanGroupId});
     // build query
     const gqlQuery = `
     mutation sellingPlanGroupRemoveProducts($id: ID!, $productIds: [ID!]!) {
@@ -388,6 +393,8 @@ export const detachSellingPlan = async ({productIds,sellingPlanGroupId, session}
       }
     });
     console.log("APP[SUCCESS] removing product to selling plan:", queryRes.body.data);
+    thisSellingPlan.connectedProducts = thisSellingPlan.connectedProducts.filter(pid=>!productIds.includes(pid));
+    await thisSellingPlan.save();
   }
   catch(error){
     console.log('APP[ERROR] removing product to selling plan:', error.response.errors);
@@ -473,7 +480,7 @@ export const createSubscription = async ({subscriptionData,session}) => {
    
    }
    catch(error){
-     console.log('APP[ERROR]  creating subscription:', error.response);
+     console.log('APP[ERROR]  creating subscription:', error);
    }
 
 }
@@ -1026,6 +1033,7 @@ export const subscriptionCreateWebhookHandler = async (subWebhookData,shop) => {
       customerPaymentMethod: fullSubData.customerPaymentMethod.id,
       createdAt: fullSubData.createdAt,
       deliveryPrice: fullSubData.deliveryPrice,
+      shop
     });
 
     newSubscription.lineItems = fullSubData.lines.edges.map(edge=>edge.node);
@@ -1146,6 +1154,7 @@ export const sellingPlanGroupCreateWebhookHandler = async (sellingPlanWebhookDat
     const newSellingPlan = new SellingPlan({
       sellingPlanGroupId: sellingPlanWebhookData.admin_graphql_api_id,
       // sellingPlanId: sellingPlanWebhookData.selling_plans[0],
+      shop,
       name: sellingPlanWebhookData.selling_plans[0].name,
       billingInterval: sellingPlanWebhookData.selling_plans[0].billing_policy.interval,
       billingIntervalCount: sellingPlanWebhookData.selling_plans[0].billing_policy.interval_count,

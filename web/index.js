@@ -20,6 +20,7 @@ import { createBundle, createBundleDraftOrder, deleteBundle, updateBundle } from
 import subscriptionRoutes from './routes/api/Subscriptions.js';
 import productRoutes from './routes/api/Products.js';
 import customerRoutes from './routes/api/Customers.js';
+import bundlesRoutes from './routes/api/Bundles.js';
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -58,8 +59,10 @@ app.post(
 // also add a proxy rule for them in web/frontend/vite.config.js
 app.use(express.json());
 
+// app.use("/api/tiers", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes, productRoutes,customerRoutes]);
+
 // app.use("/api/*", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next));
-app.use("/api", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes, productRoutes,customerRoutes]);
+app.use("/api", shopify.validateAuthenticatedSession(), async (req,res,next) => await shopInDb(req,res,next), [subscriptionRoutes, productRoutes,customerRoutes, bundlesRoutes]);
 
 
 

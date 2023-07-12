@@ -1,13 +1,18 @@
 import { Button, TextField, Stack, Select, Card, ButtonGroup, Collapsible, TextStyle } from "@shopify/polaris";
 import { useState } from "react";
-import SelectProduct from "./SelectProduct";
+import SelectMasterBundleProduct from "./SelectMasterBundleProduct";
+import SelectBundleProduct from "./SelectBundleProduct";
+// import SelectProduct from "./SelectProduct";
 
 
-export default function({bundle}){
+export default function({bundle, products}){
 
-    const [bundleProduct, setBundleProduct] = useState(bundle.product);
-    const [subProducts, setSubProducts] = useState(bundle.connectedProducts);
+    const [bundleProduct, setBundleProduct] = useState(bundle.masterVariantId);
+    const [bundleProductTitle, setBundleProductTitle] = useState(bundle.title);
+    const [subProducts, setSubProducts] = useState(bundle.bundleProducts);
     const [open, setOpen] = useState(false);
+
+    console.log('bundle:', bundle);
 
     const addProductToBundle = (product) => {
         setSubProducts([...subProducts, product])
@@ -28,7 +33,7 @@ export default function({bundle}){
     return(
         <Card sectioned>
             <div style={{display:'flex', justifyContent:'space-between',alignItems:'center'}}>
-                <h2><TextStyle variation="strong">{"Edit Bundle For "+bundleProduct.title}</TextStyle></h2>
+                <h2><TextStyle variation="strong">{"Edit Bundle For "+bundleProductTitle}</TextStyle></h2>
                 <Button onClick={()=>setOpen(!open)}>Edit Bundle</Button>
             </div>
             <Collapsible
@@ -41,11 +46,11 @@ export default function({bundle}){
                 <div style={{padding:'10px',border:'3px solid #e1e3e5', boxShadow:'10px 10px 10px 10px #e1e3e5'}}>
                     <Stack vertical>
                         <i>Select Bundle Product</i>
-                        <SelectProduct product={bundleProduct} setProduct={setBundleProduct}  masterProduct={true}></SelectProduct>
+                        <SelectMasterBundleProduct product={bundleProduct} setProduct={setBundleProduct}  masterProduct={true}></SelectMasterBundleProduct>
                     <br></br>
                         <i>Select Sub Products</i>
-                        {bundle.connectedProducts.map((subP, i)=>(
-                            <SelectProduct product={subProducts[i]} setProduct={addProductToBundle} i={i}></SelectProduct>
+                        {bundle.bundleProducts.map((subP, i)=>(
+                            <SelectBundleProduct product={subProducts[i]} setProduct={addProductToBundle} i={i}></SelectBundleProduct>
                         ))}
                     
                     {/* <Button onClick={()=>newSubProduct}>Add New</Button> */}

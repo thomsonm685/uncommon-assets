@@ -198,8 +198,12 @@ router.put('/subscriptions/sellingplans/:id', async (req, res) => {
 
 		// if(!thisSellingPlan) res.status(400).json({ data: error, success: false });
 
-		if(req.body.addedProducts.length) await attachSellingPlan({productIds: req.body.addedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId,session:res.locals.shopify.session});
-		if(req.body.removedProducts.length) await detachSellingPlan({productIds: req.body.removedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId,session:res.locals.shopify.session});
+		if(req.body.addedProducts.length){
+			await attachSellingPlan({productIds: req.body.addedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId,session:res.locals.shopify.session});
+		} 
+		if(req.body.removedProducts.length){
+			await detachSellingPlan({productIds: req.body.removedProducts.map(pid=>"gid://shopify/Product/"+pid), sellingPlanGroupId: req.body.sellingPlanGroupId,session:res.locals.shopify.session});
+		}
 
 		// WEBHOOK
 		// await updateSellingPlan({sellingPlanData:req.body,session:res.locals.shopify.session});
